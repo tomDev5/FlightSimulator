@@ -1,6 +1,8 @@
 package Interpreter;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,8 +27,8 @@ public class Interpreter {
 		this.parser = new Parser(commandMap,context);
 	}
 	
-	public int interpret(InputStream input) {
-		List<String> tokens = lexer.lex(input);
+	public int interpret(String code) {
+		List<String> tokens = lexer.lex(code);
 		parser.parse(tokens);
 		return context.getReturnValue();
 	}

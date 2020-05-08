@@ -16,8 +16,7 @@ public class Main {
 		String str = null;
 		System.out.print("> ");
 		while(!(str = scanner.nextLine()).equals("end")) {
-			InputStream input = new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8));
-			System.out.println("return: " + interpreter.interpret(input));
+			System.out.println("return: " + interpreter.interpret(str));
 			System.out.print("> ");
 		}
 		
