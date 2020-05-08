@@ -19,7 +19,7 @@ public class SetCommand implements Command {
 		String expressionString = ExpressionUtils.getExpressionString(tokens, index, context);
 		Expression expression = ExpressionUtils.fromString(expressionString);
 		context.setVariable(name, expression.calculate());
-		return ExpressionUtils.getExpressionEnd(tokens, index);
+		return ExpressionUtils.getExpressionEnd(tokens, index)-index+2;
 	}
 
 }
