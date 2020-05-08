@@ -6,29 +6,20 @@ import Expression.Expression;
 import Expression.ExpressionUtils;
 import Interpreter.Context;
 
-public class VarCommand implements Command {
-	
+public class SetCommand implements Command {
+
 	@Override
 	public int doCommand(List<String> tokens, int index, Context context) throws Exception {
-		String name = tokens.get(index + 1);
-		if(context.getVariable(name) != null)
-			throw new Exception("VarCommand: Variable already exists.");
-		if(ExpressionUtils.isDouble(name))
-			throw new Exception("VarCommand: Illegal variable name.");
+		String name = tokens.get(index);
+		if(context.getVariable(name) == null)
+			throw new Exception("SetCommand: Variable does not exists.");
 		
-		context.setVariable(name, 0.0);
-		if(tokens.size() <= index + 2 || !tokens.get(index + 2).equals("="))
-			return 2;
-		
-		index += 3;
-		if(tokens.get(index).equals("bind")) {
-			// TODO: Bind
-			return 4;
-		}
+		index += 2;
 		
 		String expressionString = ExpressionUtils.getExpressionString(tokens, index, context);
 		Expression expression = ExpressionUtils.fromString(expressionString);
 		context.setVariable(name, expression.calculate());
 		return ExpressionUtils.getExpressionEnd(tokens, index);
 	}
+
 }
