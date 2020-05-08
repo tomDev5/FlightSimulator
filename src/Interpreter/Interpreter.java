@@ -19,12 +19,6 @@ public class Interpreter {
 	public Interpreter() {
 		this.context = new Context();
 		this.lexer = new  Lexer();
-		
-		HashMap<String, Command> commandMap = new HashMap<String, Command>();
-		commandMap.put("print", new PrintCommand());
-		commandMap.put("var", new VarCommand());
-		commandMap.put("return", new ReturnCommand());
-		this.parser = new Parser(commandMap,context);
 	}
 	
 	public int interpret(String code) {

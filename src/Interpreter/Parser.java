@@ -4,14 +4,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import Command.Command;
+import Command.PrintCommand;
+import Command.ReturnCommand;
+import Command.VarCommand;
 
 public class Parser {
 	private HashMap<String, Command> commandMap;
 	private Context context;
 	
-	public Parser(HashMap<String, Command> commandMap, Context context) {
-		this.commandMap = commandMap;
+	public Parser(Context context) {
 		this.context = context;
+		commandMap = new HashMap<String, Command>();
+		commandMap.put("print", new PrintCommand());
+		commandMap.put("var", new VarCommand());
+		commandMap.put("return", new ReturnCommand());
 	}
 	
 	public int parse(List<String> tokens) {
