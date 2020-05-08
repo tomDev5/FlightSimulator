@@ -18,7 +18,7 @@ public class WhileCommand implements Command{
 		Expression secondExp = ExpressionUtils.fromString(secondExpStr);
 		
 		int end = index;
-		while(tokens.get(end) != "}"){
+		while(!tokens.get(end).equals("}")){
 			end++;
 		}
 		
@@ -38,6 +38,7 @@ public class WhileCommand implements Command{
 				p.parse(sublist);
 			}
 		}
+		
 		return end;
 	}
 	

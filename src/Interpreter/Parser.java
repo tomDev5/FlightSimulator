@@ -31,6 +31,7 @@ public class Parser {
 				if(command == null)
 					command = new SetCommand();
 				int jump = command.doCommand(tokens, idx, context);
+				System.out.println("jump " + jump);
 				if(jump == 0)
 					break;
 				idx += jump;
