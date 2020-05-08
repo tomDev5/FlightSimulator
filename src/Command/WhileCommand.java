@@ -12,10 +12,10 @@ public class WhileCommand implements Command{
 	public int doCommand(List<String> tokens, int index, Context context) {
 		int endOfFirstExp = ExpressionUtils.getExpressionEnd(tokens,index+1);
 		int endOfSecondExp = ExpressionUtils.getExpressionEnd(tokens,endOfFirstExp+1);
-		String firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
-		String secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1, context);
-		Expression firstExp = ExpressionUtils.fromString(firstExpStr);
-		Expression secondExp = ExpressionUtils.fromString(secondExpStr);
+		String firstExpStr;
+		String secondExpStr;
+		Expression firstExp;
+		Expression secondExp;
 		
 		int end = index;
 		while(!tokens.get(end).equals("}")){
@@ -26,15 +26,33 @@ public class WhileCommand implements Command{
 		
 		Parser p = new Parser(context);
 		if(tokens.get(endOfFirstExp).equals("<")){
-			while(firstExp.calculate()<secondExp.calculate()){
+			while(true){
+				firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
+				secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1, context);
+				firstExp = ExpressionUtils.fromString(firstExpStr);
+				secondExp = ExpressionUtils.fromString(secondExpStr);
+				if(!(firstExp.calculate()<secondExp.calculate()))
+					break;
 				p.parse(sublist);
 			}
 		}else if(tokens.get(endOfFirstExp).equals(">")){
-			while(firstExp.calculate()>secondExp.calculate()){
+			while(true){
+				firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
+				secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1, context);
+				firstExp = ExpressionUtils.fromString(firstExpStr);
+				secondExp = ExpressionUtils.fromString(secondExpStr);
+				if(!(firstExp.calculate()>secondExp.calculate()))
+					break;
 				p.parse(sublist);
 			}
 		}else if(tokens.get(endOfFirstExp).equals("=")){
-			while(firstExp.calculate()==secondExp.calculate()){
+			while(true){
+				firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
+				secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1, context);
+				firstExp = ExpressionUtils.fromString(firstExpStr);
+				secondExp = ExpressionUtils.fromString(secondExpStr);
+				if(firstExp.calculate()!=secondExp.calculate())
+					break;
 				p.parse(sublist);
 			}
 		}

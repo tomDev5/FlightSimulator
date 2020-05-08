@@ -22,7 +22,7 @@ public class MainTrain {
 		};
 		
 		if(MyInterpreter.interpret(test5)!=rand+2*5)
-			System.out.println("failed test5 (-20)");
+			System.out.println("failed test5 (-20) returned " + MyInterpreter.interpret(test5) +" instead of "+rand+2*5);
 		
 		sim.close();
 		System.out.println("done");
