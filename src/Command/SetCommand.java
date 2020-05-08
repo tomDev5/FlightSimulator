@@ -7,19 +7,23 @@ import Expression.ExpressionUtils;
 import Interpreter.Context;
 
 public class SetCommand implements Command {
+	private Context context;
+	
+	public SetCommand(Context context) {
+		this.context = context;
+	}
 
 	@Override
-	public int doCommand(List<String> tokens, int index, Context context) throws Exception {
+	public int doCommand(List<String> tokens, int index) throws Exception {
 		String name = tokens.get(index);
 		if(context.getVariable(name) == null)
-			throw new Exception("SetCommand: Variable does not exists.");
+			throw new Exception("SetCommand: Variable '" + name + "' does not exists.");
 		
 		index += 2;
 		
 		String expressionString = ExpressionUtils.getExpressionString(tokens, index, context);
 		Expression expression = ExpressionUtils.fromString(expressionString);
 		context.setVariable(name, expression.calculate());
-		System.out.println(name+" is "+expression.calculate());
 		return ExpressionUtils.getExpressionEnd(tokens, index)-index+2;
 	}
 

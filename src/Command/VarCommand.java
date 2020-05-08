@@ -7,14 +7,19 @@ import Expression.ExpressionUtils;
 import Interpreter.Context;
 
 public class VarCommand implements Command {
+	private Context context;
+	
+	public VarCommand(Context context) {
+		this.context = context;
+	}
 	
 	@Override
-	public int doCommand(List<String> tokens, int index, Context context) throws Exception {
+	public int doCommand(List<String> tokens, int index) throws Exception {
 		String name = tokens.get(index + 1);
 		if(context.getVariable(name) != null)
-			throw new Exception("VarCommand: Variable already exists.");
+			throw new Exception("VarCommand: Variable '" + name + "' already exists.");
 		if(ExpressionUtils.isDouble(name))
-			throw new Exception("VarCommand: Illegal variable name.");
+			throw new Exception("VarCommand: Illegal variable name '" + name + "'.");
 		
 		context.setVariable(name, 0.0);
 		if(tokens.size() <= index + 2 || !tokens.get(index + 2).equals("="))
