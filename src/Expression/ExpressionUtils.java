@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
+import Interpreter.Context;
+
 public class ExpressionUtils {
 	public static Expression fromString(String exp){
 		Queue<String> queue = new LinkedList<String>();
@@ -93,6 +95,20 @@ public class ExpressionUtils {
 		return tokens.size();
 	}
 	
+	public static String getExpressionString(List<String> tokens, int index, Context context) {
+		int end = ExpressionUtils.getExpressionEnd(tokens, index);
+		StringBuilder sb = new StringBuilder();
+		for(int i = index; i < end; i++) {
+			Double value = context.getVariable(tokens.get(i));
+			if(value == null) {
+				sb.append(tokens.get(i));
+			} else {
+				sb.append(value);
+			}
+		}
+		return sb.toString();
+	}
+	
 	private static boolean isOperation(String str) {
 		return str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/");
 	}
@@ -101,7 +117,7 @@ public class ExpressionUtils {
 		return str.equals("(") || str.equals(")");
 	}
 	
-	private static boolean isDouble(String val){
+	public static boolean isDouble(String val){
 		try {
 		    Double.parseDouble(val);
 		    return true;

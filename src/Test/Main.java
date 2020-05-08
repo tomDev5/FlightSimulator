@@ -16,7 +16,7 @@ public class Main {
 		String str = null;
 		System.out.print("> ");
 		while(!(str = scanner.nextLine()).equals("end")) {
-			System.out.println("return: " + interpreter.interpret(str));
+			interpreter.interpret(str);
 			System.out.print("> ");
 		}
 		

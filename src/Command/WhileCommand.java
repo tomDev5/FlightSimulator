@@ -14,8 +14,8 @@ public class WhileCommand implements Command{
 		int endOfSecondExp = ExpressionUtils.getExpressionEnd(tokens,endOfFirstExp+2);
 		String firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
 		String secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+2, context);
-		Expression firstExp = ExpressionUtils.fromString(firstExpstr);
-		Expression secondExp = ExpressionUtils.fromString(SecondExpstr);
+		Expression firstExp = ExpressionUtils.fromString(firstExpStr);
+		Expression secondExp = ExpressionUtils.fromString(secondExpStr);
 		
 		int end = index;
 		while(tokens.get(end) != "}"){
