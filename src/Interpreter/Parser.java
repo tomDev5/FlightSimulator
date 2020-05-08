@@ -8,6 +8,7 @@ import Command.PrintCommand;
 import Command.ReturnCommand;
 import Command.SetCommand;
 import Command.VarCommand;
+import Command.WhileCommand;
 
 public class Parser {
 	private HashMap<String, Command> commandMap;
@@ -19,6 +20,7 @@ public class Parser {
 		commandMap.put("print", new PrintCommand());
 		commandMap.put("var", new VarCommand());
 		commandMap.put("return", new ReturnCommand());
+		commandMap.put("while", new WhileCommand());
 	}
 	
 	public int parse(List<String> tokens) {
