@@ -18,7 +18,8 @@ public class Interpreter {
 	
 	public Interpreter() {
 		this.context = new Context();
-		this.lexer = new  Lexer();
+		this.lexer = new Lexer();
+		this.parser = new Parser(context);
 	}
 	
 	public int interpret(String code) {

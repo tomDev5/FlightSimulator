@@ -6,8 +6,8 @@ import java.util.List;
 import Command.Command;
 import Command.PrintCommand;
 import Command.ReturnCommand;
-import Command.VarCommand;
 import Command.SetCommand;
+import Command.VarCommand;
 
 public class Parser {
 	private HashMap<String, Command> commandMap;
