@@ -25,6 +25,7 @@ public class Interpreter {
 	public int interpret(String code) {
 		List<String> tokens = lexer.lex(code);
 		parser.parse(tokens);
+		context.stopThreads();
 		return context.getReturnValue();
 	}
 }

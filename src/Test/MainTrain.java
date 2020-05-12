@@ -48,11 +48,11 @@ public class MainTrain {
 				"var x = bind simX",
 				"var y = bind simY",	
 				"var z = bind simZ",	
-				"x = "+rand*2,
+				"x = "+20,
 				"disconnect",
 				"return x+y*z"	
 		};
-		
+
 		if(MyInterpreter.interpret(test4)!=sim.simX+sim.simY*sim.simZ)
 			System.out.println("failed test4 (-20)");
 				
@@ -63,9 +63,8 @@ public class MainTrain {
 				"	y = y + 2",
 				"	x = x + 1",
 				"}",
-				"return y"
+				"return y"	
 		};
-		
 		
 		if(MyInterpreter.interpret(test5)!=rand+2*5)
 			System.out.println("failed test5 (-20)");

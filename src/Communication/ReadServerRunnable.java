@@ -6,9 +6,15 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import Interpreter.Context;
+import Interpreter.Variable;
 
 public class ReadServerRunnable implements Runnable {
 	private volatile boolean stop;
@@ -18,26 +24,46 @@ public class ReadServerRunnable implements Runnable {
 	private Context context;
 
 	public ReadServerRunnable(int port, int frequency, Context context) {
-		super();
+		
 		this.port = port;
 		this.frequency = frequency;
-		this.context = context;
 		this.stop = false;
-	}
-
-	@Override
-	public void run() {
+		this.context = context;
+		
 		ServerSocket serverSocket = null;
-		int sleep = 1000 / frequency;
 		try {
+			// Open Server
 			serverSocket = new ServerSocket(this.port);
 			serverSocket.setSoTimeout(1000);
-			Socket connectionSocket = serverSocket.accept();
-			while(!this.stop && connectionSocket.isConnected()) {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+			
+			// Accept Client
+			this.connectionSocket = serverSocket.accept();
+			
+			// Read Initial Values
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+			String line = null;
+			while(line == null) line = reader.readLine();
+			double[] doubleValues = Arrays.stream(line.split(","))
+                    .mapToDouble(Double::parseDouble)
+                    .toArray();
+			context.updatePath("simX", doubleValues[0]);
+			context.updatePath("simY", doubleValues[1]);
+			context.updatePath("simZ", doubleValues[2]);
+			
+			serverSocket.close();
+		} catch (IOException e) {}
+	}
+	
+	private Socket connectionSocket;
+
+	public void run() {
+		int sleep = 1000 / frequency;
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+			while(!stop && !connectionSocket.isClosed()) {
 				String line = reader.readLine();
 				if(line != null) {
-					System.out.println(line);
 					double[] doubleValues = Arrays.stream(line.split(","))
 	                        .mapToDouble(Double::parseDouble)
 	                        .toArray();
@@ -45,17 +71,18 @@ public class ReadServerRunnable implements Runnable {
 					context.updatePath("simY", doubleValues[1]);
 					context.updatePath("simZ", doubleValues[2]);
 				}
-				try {Thread.sleep(sleep);} catch (InterruptedException ee) {}
 			}
-			
-		} catch (IOException e) {
-			System.out.println("EXCEPTION");
+		} catch(IOException e) {
+			e.printStackTrace();
 		} finally {
-			if(serverSocket != null) {
+			if(connectionSocket != null)
 				try {
-					serverSocket.close();
+					connectionSocket.close();
 				} catch(Exception ee) {}
-			}
 		}
+	}
+	
+	public void stop() {
+		this.stop = true;
 	}
 }

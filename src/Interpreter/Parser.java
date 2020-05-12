@@ -2,8 +2,11 @@ package Interpreter;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import Command.Command;
+import Command.ConnectCommand;
+import Command.DisconnectCommand;
 import Command.IfCommand;
 import Command.OpenDataServerCommand;
 import Command.PrintCommand;
@@ -25,6 +28,8 @@ public class Parser {
 		commandMap.put("while", new WhileCommand(context));
 		commandMap.put("if", new IfCommand(context));
 		commandMap.put("openDataServer", new OpenDataServerCommand(context));
+		commandMap.put("connect", new ConnectCommand(context));
+		commandMap.put("disconnect", new DisconnectCommand(context));
 		
 		// contains spaces, cannot be parsed by keyword
 		commandMap.put(" set ", new SetCommand(context));
@@ -41,9 +46,10 @@ public class Parser {
 				if(jump == 0)
 					break;
 				idx += jump;
+				TimeUnit.MILLISECONDS.sleep(1);
 			}
 		} catch(Exception e) {
-			System.out.println(e.toString());
+			e.printStackTrace();
 		}
 		
 		return this.context.getReturnValue();

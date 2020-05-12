@@ -49,8 +49,10 @@ abstract public class ConditionCommand implements Command {
 			return firstExp.calculate() > secondExp.calculate();
 		case "<":
 			return firstExp.calculate() < secondExp.calculate();
-		case "=":
+		case "==":
 			return firstExp.calculate() == secondExp.calculate();
+		case "!=":
+			return firstExp.calculate() != secondExp.calculate();
 		default:
 			throw new Exception("ConditionParser: Invalid condition '" + tokens.get(endOfFirstExp) + "'.");
 		}
