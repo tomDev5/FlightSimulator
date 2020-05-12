@@ -19,6 +19,11 @@ public class SetCommand implements Command {
 		if(context.getVariable(name) == null)
 			throw new Exception("SetCommand: Variable '" + name + "' does not exists.");
 		
+		if(tokens.get(index + 2).equals("bind")) {
+			context.bindPath(tokens.get(index + 3), name);
+			return 4;
+		}
+		
 		index += 2;
 		
 		String expressionString = ExpressionUtils.getExpressionString(tokens, index, context);

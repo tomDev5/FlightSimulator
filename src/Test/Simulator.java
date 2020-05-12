@@ -20,6 +20,9 @@ public class Simulator {
 		Random r=new Random();
 		simY=r.nextInt(1000);
 		simZ=r.nextInt(1000);
+		System.out.println("simX = " + simX);
+		System.out.println("simY = " + simY);
+		System.out.println("simZ = " + simZ);
 		new Thread(()->runServer()).start();
 		new Thread(()->runClient()).start();
 	}
@@ -31,6 +34,7 @@ public class Simulator {
 				PrintWriter out=new PrintWriter(interpreter.getOutputStream());
 				while(!stop){
 					out.println(simX+","+simY+","+simZ);
+					System.out.println(simX+","+simY+","+simZ);
 					out.flush();
 					try {Thread.sleep(100);} catch (InterruptedException e1) {}
 				}

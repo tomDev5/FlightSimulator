@@ -25,15 +25,9 @@ public class VarCommand implements Command {
 		if(tokens.size() <= index + 2 || !tokens.get(index + 2).equals("="))
 			return 2;
 		
-		index += 3;
-		if(tokens.get(index).equals("bind")) {
-			// TODO: Bind
-			return 4;
-		}
+		Command set = new SetCommand(context);
+		int jump = set.doCommand(tokens, index + 1);
 		
-		String expressionString = ExpressionUtils.getExpressionString(tokens, index, context);
-		Expression expression = ExpressionUtils.fromString(expressionString);
-		context.setVariable(name, expression.calculate());
-		return ExpressionUtils.getExpressionEnd(tokens, index) - index + 3;
+		return jump + 1;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import Command.Command;
 import Command.IfCommand;
+import Command.OpenDataServerCommand;
 import Command.PrintCommand;
 import Command.ReturnCommand;
 import Command.SetCommand;
@@ -23,6 +24,7 @@ public class Parser {
 		commandMap.put("return", new ReturnCommand(context));
 		commandMap.put("while", new WhileCommand(context));
 		commandMap.put("if", new IfCommand(context));
+		commandMap.put("openDataServer", new OpenDataServerCommand(context));
 		
 		// contains spaces, cannot be parsed by keyword
 		commandMap.put(" set ", new SetCommand(context));
