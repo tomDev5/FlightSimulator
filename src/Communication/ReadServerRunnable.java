@@ -22,39 +22,37 @@ public class ReadServerRunnable implements Runnable {
 	private int port;
 	private int frequency;
 	private Context context;
+	
+	private ServerSocket serverSocket;
+	private Socket connectionSocket;
 
-	public ReadServerRunnable(int port, int frequency, Context context) {
-		
+	public ReadServerRunnable(int port, int frequency, Context context) throws IOException {
 		this.port = port;
 		this.frequency = frequency;
 		this.stop = false;
 		this.context = context;
 		
-		ServerSocket serverSocket = null;
-		try {
-			// Open Server
-			serverSocket = new ServerSocket(this.port);
-			serverSocket.setSoTimeout(1000);
-			
-			// Accept Client
-			this.connectionSocket = serverSocket.accept();
-			
-			// Read Initial Values
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-			String line = null;
-			while(line == null) line = reader.readLine();
-			double[] doubleValues = Arrays.stream(line.split(","))
-                    .mapToDouble(Double::parseDouble)
-                    .toArray();
-			context.updatePath("simX", doubleValues[0]);
-			context.updatePath("simY", doubleValues[1]);
-			context.updatePath("simZ", doubleValues[2]);
-			
-			serverSocket.close();
-		} catch (IOException e) {}
+		serverSocket = new ServerSocket(this.port);
+		serverSocket.setSoTimeout(1000);
 	}
 	
-	private Socket connectionSocket;
+	public void initialize() throws IOException {
+		// Accept Client
+		this.connectionSocket = serverSocket.accept();
+		
+		// Read Initial Values
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+		String line = null;
+		while(line == null) line = reader.readLine();
+		double[] doubleValues = Arrays.stream(line.split(","))
+	            .mapToDouble(Double::parseDouble)
+	            .toArray();
+		context.updatePath("simX", doubleValues[0]);
+		context.updatePath("simY", doubleValues[1]);
+		context.updatePath("simZ", doubleValues[2]);
+		
+		serverSocket.close();
+	}
 
 	public void run() {
 		int sleep = 1000 / frequency;

@@ -18,17 +18,38 @@ abstract public class ConditionCommand implements Command {
 
 	@Override
 	public int doCommand(List<String> tokens, int index) throws Exception {
+		
+		// Find start of body '{'
+		
 		int start = index;
-		while(!tokens.get(start).equals("{")) start++;
+		while(start < tokens.size() && !tokens.get(start).equals("{")) start++;
 		start++;
 		
+		if(start > tokens.size())
+			throw new CommandException("ConditionCommand", "Missing start of body '{'.");
+		
+		// Find matching end of body '}'
+		
+		int parenthesisBalance = 1; // Skipping the first '{'
 		int end = start;
-		while(!tokens.get(end).equals("}")) end++;
+		while(end < tokens.size()) {
+			if(tokens.get(end).equals("{"))
+				parenthesisBalance++;
+			else if(tokens.get(end).equals("}"))
+				parenthesisBalance--;
+			
+			if(parenthesisBalance == 0)
+				break;
+			end++;
+		}
+		
+		if(end >= tokens.size())
+			throw new CommandException("ConditionCommand", "Missing end of body '}'.");
 		
 		List<String> innerTokens = tokens.subList(start, end);
 		
 		this.ParseCondition(
-				() -> checkCondition(tokens, index, this.context),
+				getCondition(tokens, index, this.context),
 				new Parser(context),
 				innerTokens
 			);
@@ -36,25 +57,35 @@ abstract public class ConditionCommand implements Command {
 		return end - index + 1;
 	}
 
-	private boolean checkCondition(List<String> tokens, int index, Context context) throws Exception {
+	private Condition getCondition(List<String> tokens, int index, Context context) throws Exception {
 		int endOfFirstExp = ExpressionUtils.getExpressionEnd(tokens,index+1);
-		String firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1, context);
-		Expression firstExp = ExpressionUtils.fromString(firstExpStr);
+		String firstExpStr = ExpressionUtils.getExpressionString(tokens, index+1);
+		Expression firstExp = ExpressionUtils.fromString(firstExpStr, context);
 		
-		String secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1, context);
-		Expression secondExp = ExpressionUtils.fromString(secondExpStr);
+		if(firstExp == null)
+			throw new CommandException("ConditionCommand", "Expression '" + firstExpStr + "' is invalid.");
+		
+		String secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1);
+		Expression secondExp = ExpressionUtils.fromString(secondExpStr, context);
+		
+		if(secondExp == null)
+			throw new CommandException("ConditionCommand", "Expression '" + secondExpStr + "' is invalid.");
 		
 		switch(tokens.get(endOfFirstExp)) {
 		case ">":
-			return firstExp.calculate() > secondExp.calculate();
+			return () ->  firstExp.calculate() > secondExp.calculate();
+		case ">=":
+			return () -> firstExp.calculate() >= secondExp.calculate();
 		case "<":
-			return firstExp.calculate() < secondExp.calculate();
+			return () -> firstExp.calculate() < secondExp.calculate();
+		case "<=":
+			return () -> firstExp.calculate() <= secondExp.calculate();
 		case "==":
-			return firstExp.calculate() == secondExp.calculate();
+			return () -> firstExp.calculate() == secondExp.calculate();
 		case "!=":
-			return firstExp.calculate() != secondExp.calculate();
+			return () -> firstExp.calculate() != secondExp.calculate();
 		default:
-			throw new Exception("ConditionParser: Invalid condition '" + tokens.get(endOfFirstExp) + "'.");
+			throw new CommandException("ConditionCommand", "Invalid condition '" + tokens.get(endOfFirstExp) + "'.");
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package Test;
+package PTMTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -19,17 +19,17 @@ public class Main {
 		
 		int rand=r.nextInt(1000);
 
-		String[] test3={
-				"openDataServer "+(port+1)+" 10",
-				"var x",
-				"x = bind simY",
-				"var y = bind simY",
-				"return y"
+		String[] test2={
+				"var x",	
+				"x="+rand,	
+				"var y=x+3",	
+				"return y"	
 		};
 		
-		int val1 = MyInterpreter.interpret(test3);
+		int val1 = MyInterpreter.interpret(test2);
 		System.out.println(val1);
-		if(val1!=rand*2)
+		System.out.println(rand + 3);
+		if(val1!=rand+3)
 			System.out.println("failed test3 (-20)");
 		
 		sim.close();

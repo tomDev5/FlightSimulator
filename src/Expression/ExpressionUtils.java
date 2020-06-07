@@ -8,17 +8,17 @@ import java.util.Stack;
 import Interpreter.Context;
 
 public class ExpressionUtils {
-	public static Expression fromString(String exp){
+	public static Expression fromString(String exp, Context context){
 		Queue<String> queue = new LinkedList<String>();
 		Stack<String> stack = new Stack<String>();
 		Stack<Expression> stackExp = new Stack<Expression>();
 		
 		String[] split = exp.split("(?<=[-+*/()])|(?=[-+*/()])");
 		for (String s : split){
-			if (isDouble(s)){
+			if (isDouble(s) || context.getVariable(s) != null){
 				queue.add(s);
 			}
-			else{
+			else if (isOperation(s)||isParentheses(s)){
 				switch(s) {
 			    case "/":
 			    case "*":
@@ -39,6 +39,8 @@ public class ExpressionUtils {
 			    	stack.pop();
 			        break;
 				}
+			} else {
+				return null;
 			}
 		}
 		while(!stack.isEmpty()){
@@ -49,7 +51,7 @@ public class ExpressionUtils {
 			if (isDouble(str)){
 				stackExp.push(new Number(Double.parseDouble(str)));
 			}
-			else{
+			else if(isOperation(str)){
 				Expression right = stackExp.pop();
 				Expression left = stackExp.pop();
 				
@@ -67,6 +69,8 @@ public class ExpressionUtils {
 			    	stackExp.push(new Minus(left, right));
 			        break;
 				}
+			} else {
+				stackExp.push(new Variable(str, context));
 			}
 		}
 	
@@ -74,6 +78,12 @@ public class ExpressionUtils {
 	}
 	
 	public static int getExpressionEnd(List<String> tokens, int index) {
+		if(index >= tokens.size())
+			return 0;
+		
+		if(isOperation(tokens.get(index)))
+			index++;
+		
 		while(index + 1 < tokens.size()) {
 			if(isParentheses(tokens.get(index))) {
 				index++;
@@ -82,7 +92,7 @@ public class ExpressionUtils {
 				int nextTerm = index + 1;
 				while(nextTerm < tokens.size() && isParentheses(tokens.get(nextTerm)))
 					nextTerm++;
-				if(nextTerm == tokens.size())
+				if(nextTerm >= tokens.size())
 					break;
 				if(!isOperation(tokens.get(nextTerm))) {
 					return index + 1;
@@ -95,18 +105,14 @@ public class ExpressionUtils {
 		return tokens.size();
 	}
 	
-	public static String getExpressionString(List<String> tokens, int index, Context context) {
+	public static String getExpressionString(List<String> tokens, int index) {
 		int end = ExpressionUtils.getExpressionEnd(tokens, index);
 		StringBuilder sb = new StringBuilder();
 		for(int i = index; i < end; i++) {
-			Double value = context.getVariable(tokens.get(i));
-			if(value == null) {
-				sb.append(tokens.get(i));
-			} else {
-				sb.append(value);
-			}
+			sb.append(tokens.get(i));
 		}
-		return sb.toString();
+		String str = sb.toString().replaceFirst("^(-.*)", "0$1").replaceAll("([\\(\\*\\/\\+])-([0-9]*)", "$1(0-$2)");
+		return str;
 	}
 	
 	private static boolean isOperation(String str) {

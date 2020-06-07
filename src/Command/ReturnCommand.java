@@ -14,18 +14,13 @@ public class ReturnCommand implements Command {
 	}
 
 	@Override
-	public int doCommand(List<String> tokens, int index) {
-		int end = ExpressionUtils.getExpressionEnd(tokens, index + 1);
-		StringBuilder sb = new StringBuilder();
-		for(int i = index + 1; i < end; i++) {
-			Double value = context.getVariable(tokens.get(i));
-			if(value == null) {
-				sb.append(tokens.get(i));
-			} else {
-				sb.append(value);
-			}
-		}
-		Expression expression = ExpressionUtils.fromString(sb.toString());
+	public int doCommand(List<String> tokens, int index) throws Exception {
+		String expressionString = ExpressionUtils.getExpressionString(tokens, index + 1);
+		Expression expression = ExpressionUtils.fromString(expressionString, context);
+		
+		if(expression == null)
+			throw new CommandException("ReturnCommand", "Expression '" + expressionString + "' is invalid.");
+		
 		context.setReturnValue((int)expression.calculate());
 		return 0;
 	}

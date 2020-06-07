@@ -1,5 +1,8 @@
 package Command;
 
+import java.net.BindException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import Interpreter.Context;
 
@@ -12,8 +15,24 @@ public class OpenDataServerCommand implements Command {
 
 	@Override
 	public int doCommand(List<String> tokens, int index) throws Exception {
-		int port = Integer.parseInt(tokens.get(index + 1));
-		int frequency = Integer.parseInt(tokens.get(index + 2));
+		int port, frequency;
+		
+		if(index + 1 >= tokens.size())
+			throw new CommandException("OpenDataServerCommand", "Missing port.");
+		else if(index + 2 >= tokens.size())
+			throw new CommandException("OpenDataServerCommand", "Missing frequency.");
+		
+		try {
+			port = Integer.parseInt(tokens.get(index + 1));
+		} catch(NumberFormatException e) {
+			throw new CommandException("OpenDataServerCommand", "Port '" + tokens.get(index + 1) + "' is invalid.");
+		}
+		
+		try {
+			frequency = Integer.parseInt(tokens.get(index + 2));
+		} catch(NumberFormatException e) {
+			throw new CommandException("OpenDataServerCommand", "Frequency '" + tokens.get(index + 2) + "' is invalid.");
+		}
 		
 		context.startReadServer(port, frequency);
 		return 3;

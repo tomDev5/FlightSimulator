@@ -17,10 +17,8 @@ import Command.WhileCommand;
 
 public class Parser {
 	private HashMap<String, Command> commandMap;
-	private Context context;
 	
 	public Parser(Context context) {
-		this.context = context;
 		commandMap = new HashMap<String, Command>();
 		commandMap.put("print", new PrintCommand(context));
 		commandMap.put("var", new VarCommand(context));
@@ -35,7 +33,7 @@ public class Parser {
 		commandMap.put(" set ", new SetCommand(context));
 	}
 	
-	public int parse(List<String> tokens) {
+	public void parse(List<String> tokens) {
 		int idx = 0;
 		try {
 			while(idx < tokens.size()) {
@@ -49,9 +47,7 @@ public class Parser {
 				TimeUnit.MILLISECONDS.sleep(1);
 			}
 		} catch(Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
-		
-		return this.context.getReturnValue();
 	}
 }

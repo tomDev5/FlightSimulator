@@ -2,6 +2,8 @@ package Command;
 
 import java.util.List;
 
+import Expression.Expression;
+import Expression.ExpressionUtils;
 import Interpreter.Context;
 
 public class PrintCommand implements Command {
@@ -12,9 +14,16 @@ public class PrintCommand implements Command {
 	}
 
 	@Override
-	public int doCommand(List<String> tokens, int index) {
-		System.out.println(context.getVariable(tokens.get(index + 1)));
-		return 2;
+	public int doCommand(List<String> tokens, int index) throws Exception {
+		int expressionEnd = ExpressionUtils.getExpressionEnd(tokens, index + 1);
+		String expressionString = ExpressionUtils.getExpressionString(tokens, index + 1);
+		Expression expression = ExpressionUtils.fromString(expressionString, context);
+		
+		if(expression == null)
+			throw new CommandException("PrintCommand", "Expression '" + expressionString + "' is invalid.");
+		
+		System.out.println(expression.calculate());
+		return expressionEnd - index;
 	}
 	
 }

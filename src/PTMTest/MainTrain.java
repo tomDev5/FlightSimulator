@@ -1,4 +1,4 @@
-package Test;
+package PTMTest;
 
 import java.util.Random;
 
@@ -48,11 +48,11 @@ public class MainTrain {
 				"var x = bind simX",
 				"var y = bind simY",	
 				"var z = bind simZ",	
-				"x = "+20,
+				"x = "+rand*2,
 				"disconnect",
 				"return x+y*z"	
 		};
-
+		
 		if(MyInterpreter.interpret(test4)!=sim.simX+sim.simY*sim.simZ)
 			System.out.println("failed test4 (-20)");
 				

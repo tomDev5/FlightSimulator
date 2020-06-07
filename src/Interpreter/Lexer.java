@@ -9,10 +9,7 @@ import java.util.Scanner;
 
 public class Lexer {
 	public List<String> lex(String code) {
-		code = code.replace("+", " + ").replace("-", " - ")
-			.replace("*", " * ").replace("/", " / ")
-			.replace("(", " ( ").replace(")", " ) ")
-			.replace("=", " = ");
+		code = this.inflateCode(code);
 		
 		InputStream input = new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8));
 		Scanner scanner = new Scanner(input);
@@ -26,5 +23,18 @@ public class Lexer {
 		}
 		
 		return tokens;
+	}
+	
+	private String inflateCode(String code) {
+		code = code.replace(";", " ");
+		
+		String[] inflateTokens = {"+", "-", "*", "/", "(", ")", "{", "}", ">", "<", "="};
+		for(String token : inflateTokens) {
+			code = code.replace(token, " " + token + " ");
+		}
+		
+		code = code.replaceAll(">[\\s]+=", ">=").replaceAll("<[\\s]+=", "<=");
+		
+		return code;
 	}
 }

@@ -1,15 +1,6 @@
 package Interpreter;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
-
-import Command.Command;
-import Command.PrintCommand;
-import Command.ReturnCommand;
-import Command.VarCommand;
 
 public class Interpreter {
 	private Lexer lexer;
@@ -22,10 +13,13 @@ public class Interpreter {
 		this.parser = new Parser(context);
 	}
 	
-	public int interpret(String code) {
+	public Integer interpret(String code) {
 		List<String> tokens = lexer.lex(code);
 		parser.parse(tokens);
-		context.stopThreads();
 		return context.getReturnValue();
+	}
+	
+	public void quit() {
+		context.stopThreads();
 	}
 }

@@ -1,5 +1,6 @@
 package Interpreter;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class Context {
 	private ConcurrentHashMap<String, Variable> symbolMap;
 	private ConcurrentHashMap<String, HashSet<String>> bindMap;
 	private ConcurrentHashMap<String, Double> pathValues;
-	private int returnValue;
+	private Integer returnValue;
 	
 	private ReadServerRunnable	readServerRunnable;		// Reads from connecting client
 	private WriteClientRunnable	writeClientRunnable;	// Writes to target server
@@ -34,7 +35,7 @@ public class Context {
 		this.symbolMap = new ConcurrentHashMap<String, Variable>();
 		this.bindMap = new ConcurrentHashMap<String, HashSet<String>>();
 		this.pathValues = new ConcurrentHashMap<String, Double>();
-		this.returnValue = 0;
+		this.returnValue = null;
 		
 		this.readServerRunnable = null;
 		this.writeClientRunnable = null;
@@ -42,7 +43,7 @@ public class Context {
 	
 	// Variable Management
 	
-	public int getReturnValue() {
+	public Integer getReturnValue() {
 		return this.returnValue;
 	}
 	public void setReturnValue(int returnValue) {
@@ -94,9 +95,10 @@ public class Context {
 	
 	// Thread Management
 	
-	public void startReadServer(int port, int frequency) {
+	public void startReadServer(int port, int frequency) throws IOException {
 		if(readServerRunnable == null) {
 			readServerRunnable = new ReadServerRunnable(port, frequency, this);
+			readServerRunnable.initialize();
 			new Thread(readServerRunnable).start();
 		}
 	}
