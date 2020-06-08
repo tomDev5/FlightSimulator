@@ -25,15 +25,22 @@ public class SetCommand implements Command {
 			throw new CommandException("SetCommand", "Missing expression after equals symbol '='.");
 		
 		if(tokens.get(index + 2).equals("bind")) {
-			context.bindPath(tokens.get(index + 3), name);
-			return 4;
+			StringBuilder sb = new StringBuilder();
+			int i = index + 3;
+			while(i + 1 < tokens.size() && (tokens.get(i).equals("/") || tokens.get(i).equals("-"))) {
+				sb.append(tokens.get(i));
+				sb.append(tokens.get(i + 1));
+				i += 2;
+			}
+			context.bindPath(sb.toString(), name);
+			return i - index;
 		}
 		
 		String expressionString = ExpressionUtils.getExpressionString(tokens, index + 2);
 		Expression expression = ExpressionUtils.fromString(expressionString, context);
 		
 		if(expression == null)
-			throw new CommandException("SetCommand", "model.Expression '" + expressionString + "' is invalid.");
+			throw new CommandException("SetCommand", "Expression '" + expressionString + "' is invalid.");
 		
 		context.setVariable(name, expression.calculate());
 		return ExpressionUtils.getExpressionEnd(tokens, index + 2) - index;

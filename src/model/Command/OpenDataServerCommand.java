@@ -1,5 +1,6 @@
 package model.Command;
 
+import java.io.IOException;
 import java.util.List;
 import model.Interpreter.Context;
 
@@ -30,7 +31,7 @@ public class OpenDataServerCommand implements Command {
 		} catch(NumberFormatException e) {
 			throw new CommandException("OpenDataServerCommand", "Frequency '" + tokens.get(index + 2) + "' is invalid.");
 		}
-		
+
 		context.startReadServer(port, frequency);
 		return 3;
 	}

@@ -44,7 +44,8 @@ public class WriteClientRunnable implements Runnable {
 				try {
 					SetData data = queue.poll(100, TimeUnit.MILLISECONDS);
 					if(!connectionSocket.isClosed() && data != null) {
-						printer.println("set " + data.path + " " + data.value);
+						printer.print("set " + data.path + " " + data.value + "\r\n");
+						System.out.println("set " + data.path + " " + data.value);
 					}
 				} catch (InterruptedException e) {}
 				if(queue.isEmpty()) synchronized(context) { context.notify(); }

@@ -20,7 +20,7 @@ public class PrintCommand implements Command {
 		Expression expression = ExpressionUtils.fromString(expressionString, context);
 		
 		if(expression == null)
-			throw new CommandException("PrintCommand", "model.Expression '" + expressionString + "' is invalid.");
+			throw new CommandException("PrintCommand", "Expression '" + expressionString + "' is invalid.");
 		
 		System.out.println(expression.calculate());
 		return expressionEnd - index;

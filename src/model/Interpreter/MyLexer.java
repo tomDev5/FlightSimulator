@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MyLexer implements Lexer {
+	final private static String[] inflateTokens = {"+", "-", "*", "/", "(", ")", "{", "}", ">", "<", "=", "!"};
+	final private static String[][] joinTokens =  {{">", "="}, {"<", "="}, {"=", "="}, {"!", "="}};
+
 	public List<String> lex(String code) {
 		code = this.inflateCode(code);
 
@@ -27,13 +30,11 @@ public class MyLexer implements Lexer {
 	
 	private String inflateCode(String code) {
 		code = code.replace(";", " ");
-		
-		String[] inflateTokens = {"+", "-", "*", "/", "(", ")", "{", "}", ">", "<", "=", "!", "\""};
+
 		for(String token : inflateTokens) {
 			code = code.replace(token, " " + token + " ");
 		}
 
-		String[][] joinTokens = {{">", "="}, {"<", "="}, {"=", "="}, {"!", "="}};
 		for(String[] pair : joinTokens){
 			code = code.replaceAll(pair[0] + "[\\s]+" + pair[1], pair[0] + pair[1]);
 		}

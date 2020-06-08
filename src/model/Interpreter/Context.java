@@ -68,15 +68,13 @@ public class Context {
 	}
 	
 	public void bindPath(String path, String name) {
+		this.symbolMap.get(name).boundPath = path;
 		HashSet<String> names = this.bindMap.get(path);
 		if(names == null) {
 			names = new HashSet<>();
 			this.bindMap.put(path, names);
 		}
 		names.add(name);
-
-		if(pathValues.get(path) != null)
-			this.symbolMap.put(name, new Variable(pathValues.get(path), path));
 	}
 	public void updatePath(String path, Double value) {
 		HashSet<String> names = bindMap.get(path);

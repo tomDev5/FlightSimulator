@@ -66,13 +66,13 @@ abstract public class ConditionCommand implements Command {
 		Expression firstExp = ExpressionUtils.fromString(firstExpStr, context);
 		
 		if(firstExp == null)
-			throw new CommandException("ConditionCommand", "model.Expression '" + firstExpStr + "' is invalid.");
+			throw new CommandException("ConditionCommand", "Expression '" + firstExpStr + "' is invalid.");
 		
 		String secondExpStr = ExpressionUtils.getExpressionString(tokens, endOfFirstExp+1);
 		Expression secondExp = ExpressionUtils.fromString(secondExpStr, context);
 		
 		if(secondExp == null)
-			throw new CommandException("ConditionCommand", "model.Expression '" + secondExpStr + "' is invalid.");
+			throw new CommandException("ConditionCommand", "Expression '" + secondExpStr + "' is invalid.");
 		
 		switch(tokens.get(endOfFirstExp)) {
 		case ">":

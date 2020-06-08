@@ -79,27 +79,29 @@ public class ExpressionUtils {
 	
 	public static int getExpressionEnd(List<String> tokens, int index) {
 		if(index >= tokens.size())
-			return 0;
-		
-		if(isOperation(tokens.get(index)))
-			index++;
-		
-		while(index + 1 < tokens.size()) {
-			if(isParentheses(tokens.get(index))) {
-				index++;
+			return index - 1;
+
+		if(tokens.get(index).equals("(")) {
+			index = getExpressionEnd(tokens, index + 1);
+		}
+
+		boolean prevIsOperation = isOperation(tokens.get(index));
+		index++;
+
+		while(index < tokens.size()) {
+			if(tokens.get(index).equals("(")) {
+				index = getExpressionEnd(tokens, index + 1);
+				prevIsOperation = false;
 				continue;
-			} else if(!isOperation(tokens.get(index))) {
-				int nextTerm = index + 1;
-				while(nextTerm < tokens.size() && isParentheses(tokens.get(nextTerm)))
-					nextTerm++;
-				if(nextTerm >= tokens.size())
-					break;
-				if(!isOperation(tokens.get(nextTerm))) {
-					return index + 1;
-				}
+			} else if (tokens.get(index).equals(")")) {
+				return index + 1;
 			}
-			
-			index += 2;
+
+			if(isOperation(tokens.get(index)) == prevIsOperation)
+				return index;
+
+			prevIsOperation = isOperation(tokens.get(index));
+			index++;
 		}
 		
 		return tokens.size();
@@ -111,8 +113,7 @@ public class ExpressionUtils {
 		for(int i = index; i < end; i++) {
 			sb.append(tokens.get(i));
 		}
-		String str = sb.toString().replaceFirst("^(-.*)", "0$1").replaceAll("([\\(\\*\\/\\+])-([0-9]*)", "$1(0-$2)");
-		return str;
+		return sb.toString().replaceFirst("^(-.*)", "0$1").replaceAll("([(*/+])-([0-9]*)", "$1(0-$2)");
 	}
 	
 	private static boolean isOperation(String str) {

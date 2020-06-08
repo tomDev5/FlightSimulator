@@ -19,7 +19,7 @@ public class ReturnCommand implements Command {
 		Expression expression = ExpressionUtils.fromString(expressionString, context);
 		
 		if(expression == null)
-			throw new CommandException("ReturnCommand", "model.Expression '" + expressionString + "' is invalid.");
+			throw new CommandException("ReturnCommand", "Expression '" + expressionString + "' is invalid.");
 		
 		context.setReturnValue((int)expression.calculate());
 		return 0;
