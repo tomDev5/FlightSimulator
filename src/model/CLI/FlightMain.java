@@ -10,46 +10,44 @@ import java.io.InputStreamReader;
 public class FlightMain {
 
 	public static void main(String[] args) {
-		Interpreter myInterpreter = new MyInterpreter();
+		Interpreter interpreter = new MyInterpreter();
 
-		String code = "openDataServer 5050 10 " +
-				"connect 127.0.0.1 6060 " +
-				"sleep 30000 " +
-				"var breaks = bind /controls/flight/speedbrake " +
-				"var throttle = bind /controls/engines/current-engine/throttle " +
-				"var heading = bind /instrumentation/heading-indicator/offset-deg " +
-				"var airspeed = bind /instrumentation/airspeed-indicator/indicated-speed-kt " +
-				"var roll= bind /instrumentation/attitude-indicator/indicated-roll-deg " +
-				"var pitch = bind /instrumentation/attitude-indicator/internal-pitch-deg " +
-				"var rudder = bind /controls/flight/rudder " +
-				"var aileron = bind /controls/flight/aileron " +
-				"var elevator = bind /controls/flight/elevator " +
-				"var alt = bind /instrumentation/altimeter/indicated-altitude-ft " +
-				"breaks = 0 " +
-				"throttle = 1 " +
-				"var h0 = heading " +
-				"while alt< 1000{ " +
-				" rudder = (h0 -heading)/20 " +
-				" aileron = -roll / 70 " +
-				" elevator = pitch / 50 " +
-				" print alt " +
-				" sleep 250 " +
-				"}";
-
-		String code2 = "openDataServer 5050 10\n" +
+		String connect =
+				"openDataServer 5050 10\n" +
 				"connect 127.0.0.1 6060\n" +
-				"print 11111\n" +
+				"var breaks = bind /controls/flight/speedbrake\n" +
+				"var throttle = bind /controls/engines/current-engine/throttle\n" +
+				"var heading = bind /instrumentation/heading-indicator/indicated-heading-deg\n" +
+				"var airspeed = bind /instrumentation/airspeed-indicator/indicated-speed-kt\n" +
+				"var roll= bind /instrumentation/attitude-indicator/indicated-roll-deg\n" +
+				"var pitch = bind /instrumentation/attitude-indicator/internal-pitch-deg\n" +
 				"var rudder = bind /controls/flight/rudder\n" +
-				"while 1 > 0 {\n" +
-				"\trudder = 1\n" +
-				"\tsleep 1000\n" +
-				"\trudder = -1\n" +
-				"\tsleep 1000\n" +
-				"}";
+				"var aileron = bind /controls/flight/aileron\n" +
+				"var elevator = bind /controls/flight/elevator\n" +
+				"var alt = bind /instrumentation/altimeter/indicated-altitude-ft\n";
 
-		myInterpreter.interpret(code);
+		String fly =
+				"var h0 = heading\n" +
+				"breaks = 0\n" +
+				"throttle = 1\n" +
+				"sleep 1000\n" +
+				"print \"h0:\"\n" +
+				"print h0\n" +
+				"while alt< 1000{\n" +
+				"\trudder = (h0 -heading)/30\n" +
+				"\taileron = -roll / 70\n" +
+				"\televator = pitch / 50\n" +
+				"\tprint heading\n" +
+				"\tsleep 250\n" +
+				"}\n";
 
-		myInterpreter.quit();
+		interpreter.interpret(connect);
+		System.out.println("Connected. Press 'Enter' to start.");
+		try { System.in.read(); } catch (IOException ignore) {}
+		System.out.println("Starting flight.");
+		interpreter.interpret(fly);
+
+		interpreter.quit();
 	}
 	
 	private static int getParenthesisBalance(String str) {

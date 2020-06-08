@@ -38,7 +38,6 @@ public class MyParser implements Parser {
 				if(jump == 0)
 					break;
 				idx += jump;
-				TimeUnit.MILLISECONDS.sleep(1);
 			}
 		} catch(Exception e) {
 			System.out.println(e.getMessage());

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MyLexer implements Lexer {
-	final private static String[] inflateTokens = {"+", "-", "*", "/", "(", ")", "{", "}", ">", "<", "=", "!"};
+	final private static String[] inflateTokens = {"+", "-", "*", "/", "(", ")", "{", "}", ">", "<", "=", "!", "\""};
 	final private static String[][] joinTokens =  {{">", "="}, {"<", "="}, {"=", "="}, {"!", "="}};
 
 	public List<String> lex(String code) {
