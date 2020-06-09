@@ -30,14 +30,11 @@ public class FlightMain {
 				"var h0 = heading\n" +
 				"breaks = 0\n" +
 				"throttle = 1\n" +
-				"sleep 1000\n" +
-				"print \"h0:\"\n" +
-				"print h0\n" +
 				"while alt< 1000{\n" +
-				"\trudder = (h0 -heading)/30\n" +
+				"\trudder = (h0 -heading)/20\n" +
 				"\taileron = -roll / 70\n" +
 				"\televator = pitch / 50\n" +
-				"\tprint heading\n" +
+				"\tprint alt\n" +
 				"\tsleep 250\n" +
 				"}\n";
 
