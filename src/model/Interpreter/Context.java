@@ -10,7 +10,6 @@ import model.Communication.WriteClientRunnable;
 public class Context {
 	private ConcurrentHashMap<String, Variable> symbolMap;
 	private ConcurrentHashMap<String, HashSet<String>> bindMap;
-	private ConcurrentHashMap<String, Double> pathValues;
 	private Integer returnValue;
 	
 	private ReadServerRunnable	readServerRunnable;		// Reads from connecting client
@@ -30,7 +29,6 @@ public class Context {
 	public Context() {
 		this.symbolMap = new ConcurrentHashMap<String, Variable>();
 		this.bindMap = new ConcurrentHashMap<String, HashSet<String>>();
-		this.pathValues = new ConcurrentHashMap<String, Double>();
 		this.returnValue = null;
 		
 		this.readServerRunnable = null;
@@ -69,11 +67,7 @@ public class Context {
 	
 	public void bindPath(String path, String name) {
 		this.symbolMap.get(name).boundPath = path;
-		HashSet<String> names = this.bindMap.get(path);
-		if(names == null) {
-			names = new HashSet<>();
-			this.bindMap.put(path, names);
-		}
+		HashSet<String> names = this.bindMap.computeIfAbsent(path, k -> new HashSet<>());
 		names.add(name);
 	}
 	public void updatePath(String path, Double value) {
@@ -83,8 +77,6 @@ public class Context {
 				this.symbolMap.get(name).value = value;
 			}
 		}
-		
-		this.pathValues.put(path, value);
 	}
 	
 	// Thread Management
