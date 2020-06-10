@@ -26,6 +26,10 @@ public class InterpreterModel extends Observable {
         this.interpreter.interpret(property + " = " + value);
     }
 
+    public void interpret(String code) {
+        this.interpreter.interpret(code);
+    }
+
     public void stop() {
         this.interpreter.stop();
     }
