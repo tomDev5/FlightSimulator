@@ -10,6 +10,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Slider;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.InterpreterModel;
+import model.InterpreterModel;
+import viewmodel.ViewModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,22 +23,30 @@ public class MainWindow extends Application {
         launch(args);
     }
 
-    @FXML
-    private Slider throttle,rudder;
-    @FXML
-    private Text throttleTxt,rudderTxt;
+    ViewModel viewModel;
 
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("mainWindow.fxml"));
+        InterpreterModel model = new InterpreterModel(); // Model
+        this.viewModel = new ViewModel(model); // ViewModel
+        model.addObserver(viewModel);
+
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("mainWindow.fxml"));
+        Parent root = loader.load();
         stage.setScene(new Scene(root));
         stage.show();
+
+        MainWindowController view = loader.getController(); // View
+
+        view.setViewModel(viewModel);
+        viewModel.addObserver(view);
+        model.addObserver(viewModel);
     }
 
-    public void throttle_dragged(){
-        throttleTxt.setText("throttle - "+throttle.getValue());
-    }
-    public void rudder_dragged(){
-        rudderTxt.setText("rudder - "+rudder.getValue());
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        this.viewModel.quit();
     }
 }
