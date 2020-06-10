@@ -18,7 +18,12 @@ public class MyInterpreter implements Interpreter {
 		this.parser.parse(tokens);
 		return this.context.getReturnValue();
 	}
-	
+
+	@Override
+	public void stop() {
+		parser.stop();
+	}
+
 	public void quit() {
 		context.stopThreads();
 	}

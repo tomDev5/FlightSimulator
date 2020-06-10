@@ -8,6 +8,7 @@ import model.Command.*;
 
 public class MyParser implements Parser {
 	private HashMap<String, Command> commandMap;
+	private volatile boolean stop = false;
 	
 	public MyParser(Context context) {
 		commandMap = new HashMap<String, Command>();
@@ -30,7 +31,8 @@ public class MyParser implements Parser {
 	public void parse(List<String> tokens) {
 		int idx = 0;
 		try {
-			while(idx < tokens.size()) {
+			stop = false;
+			while(idx < tokens.size() && !stop) {
 				Command command = commandMap.get(tokens.get(idx));
 				if(command == null)
 					command = commandMap.get(" set ");
@@ -42,5 +44,10 @@ public class MyParser implements Parser {
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
+	}
+
+	@Override
+	public void stop() {
+		stop = true;
 	}
 }
