@@ -33,9 +33,9 @@ public class MainWindow extends Application {
     }
 
     public void throttle_dragged(){
-        throttleTxt.setText("throttle - "+throttle.getValue());
+        System.out.println("throttle - "+throttle.getValue());
     }
     public void rudder_dragged(){
-        rudderTxt.setText("rudder - "+rudder.getValue());
+        System.out.println("rudder - "+rudder.getValue());
     }
 }
