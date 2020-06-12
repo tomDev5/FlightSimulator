@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="373.0" prefWidth="887.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindow">
+<AnchorPane prefHeight="373.0" prefWidth="887.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
    <children>
       <Text fx:id="throttleTxt" layoutX="300.0" layoutY="215.0" rotate="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Throttle" />
       <Button layoutX="19.0" layoutY="21.0" mnemonicParsing="false" text="Connect" />
