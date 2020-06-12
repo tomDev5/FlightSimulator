@@ -24,6 +24,7 @@ public class MainWindow extends Application {
     }
 
     ViewModel viewModel;
+    Slider throttle, rudder;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -33,28 +34,28 @@ public class MainWindow extends Application {
 
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("mainWindow.fxml"));
-        Parent root = loader.load();
-        stage.setScene(new Scene(root));
-        stage.show();
-
-<<<<<<< HEAD
-    public void throttle_dragged(){
-        System.out.println("throttle - "+throttle.getValue());
-    }
-    public void rudder_dragged(){
-        System.out.println("rudder - "+rudder.getValue());
-=======
         MainWindowController view = loader.getController(); // View
 
         view.setViewModel(viewModel);
         viewModel.addObserver(view);
         model.addObserver(viewModel);
+
+        Parent root = loader.load();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    public void throttle_dragged() {
+        this.viewModel.set("throttle");
+    }
+
+    public void rudder_dragged() {
+        this.viewModel.set("rudder");
     }
 
     @Override
     public void stop() throws Exception {
         super.stop();
         this.viewModel.quit();
->>>>>>> ad2bfed5fcd3d99e685011bad137d27d0fd6def8
     }
 }
