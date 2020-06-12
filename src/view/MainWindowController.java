@@ -17,6 +17,9 @@ public class MainWindowController implements Observer {
 double xPos;
 double yPos;
     ViewModel viewModel;
+    double orgSceneX, orgSceneY;
+    double orgTranslateX, orgTranslateY;
+
     @FXML
     private Slider throttle, rudder;
     @FXML
@@ -26,7 +29,9 @@ double yPos;
         this.viewModel = viewModel;
         viewModel.throttle.bind(throttle.valueProperty());
         viewModel.rudder.bind(rudder.valueProperty());
-        joystick.setOnMousePressed(joystickClick);
+        //joystick.setOnMousePressed(joystickClick);
+        joystick.setOnMousePressed(circleOnMousePressedEventHandler);
+        joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 
     }
 
@@ -39,7 +44,32 @@ double yPos;
                     joystick.setCenterY(t.getSceneY());
                 }
             };
+    EventHandler<MouseEvent> circleOnMousePressedEventHandler =
+            new EventHandler<MouseEvent>() {
 
+                @Override
+                public void handle(MouseEvent t) {
+                    orgSceneX = t.getSceneX();
+                    orgSceneY = t.getSceneY();
+                    orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
+                    orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+                }
+            };
+
+    EventHandler<MouseEvent> circleOnMouseDraggedEventHandler =
+            new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent t) {
+                    double offsetX = t.getSceneX() - orgSceneX;
+                    double offsetY = t.getSceneY() - orgSceneY;
+                    double newTranslateX = orgTranslateX + offsetX;
+                    double newTranslateY = orgTranslateY + offsetY;
+
+                    ((Circle)(t.getSource())).setTranslateX(newTranslateX);
+                    ((Circle)(t.getSource())).setTranslateY(newTranslateY);
+                }
+            };
 
 
 
