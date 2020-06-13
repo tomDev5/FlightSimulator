@@ -1,10 +1,8 @@
 package view;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -18,7 +16,6 @@ import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class MainWindowController implements Observer {
     double xPos;
@@ -33,7 +30,7 @@ public class MainWindowController implements Observer {
     @FXML private ToggleGroup modeTgp;
     @FXML private RadioButton manualRdo, autopilotRdo;
     @FXML private Circle joystick;
-    @FXML private TextArea autopilotTxa;
+    @FXML private TextArea autopilotTxa, outputTxa;
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
@@ -44,6 +41,8 @@ public class MainWindowController implements Observer {
         joystick.setOnMousePressed(circleOnMousePressedEventHandler);
         joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
         modeTgp.selectedToggleProperty().addListener(modeGroupListener);
+
+        this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
 
     private final ChangeListener<Toggle> modeGroupListener = (observableValue, toggle, t1) -> {
@@ -93,7 +92,6 @@ public class MainWindowController implements Observer {
                     ((Circle)(t.getSource())).setTranslateY(newTranslateY);
                 }
             };
-
 
     public void load_script() {
         FileChooser fileChooser = new FileChooser();
@@ -148,10 +146,7 @@ public class MainWindowController implements Observer {
         });
 
         Optional<Integer> result = dialog.showAndWait();
-        result.ifPresent(p -> {
-            this.viewModel.openDataServer(p);
-
-        });
+        result.ifPresent(p -> this.viewModel.openDataServer(p));
     }
 
     public void connect() {

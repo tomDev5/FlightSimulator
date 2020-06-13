@@ -1,6 +1,10 @@
 package model.Interpreter;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.SocketException;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,6 +12,8 @@ import model.Communication.ReadServerRunnable;
 import model.Communication.WriteClientRunnable;
 
 public class Context {
+	private PrintStream log;
+
 	private ConcurrentHashMap<String, Variable> symbolMap;
 	private ConcurrentHashMap<String, HashSet<String>> bindMap;
 	private Integer returnValue;
@@ -27,14 +33,24 @@ public class Context {
 	}
 	
 	public Context() {
-		this.symbolMap = new ConcurrentHashMap<String, Variable>();
-		this.bindMap = new ConcurrentHashMap<String, HashSet<String>>();
+		this.symbolMap = new ConcurrentHashMap<>();
+		this.bindMap = new ConcurrentHashMap<>();
 		this.returnValue = null;
 		
 		this.readServerRunnable = null;
 		this.writeClientRunnable = null;
+
+		this.log = System.out;
 	}
-	
+
+	public void setLog(PrintStream log) {
+		this.log = log;
+	}
+
+	public PrintStream getLog() {
+		return log;
+	}
+
 	// Variable Management
 	
 	public Integer getReturnValue() {
@@ -81,11 +97,17 @@ public class Context {
 	
 	// Thread Management
 	
-	public void startReadServer(int port, int frequency) throws IOException {
-		if(readServerRunnable == null) {
+	public void startReadServer(int port, int frequency) {
+		if(readServerRunnable != null) {
+			this.stopReadServer();
+		}
+
+		try {
 			readServerRunnable = new ReadServerRunnable(port, frequency, this);
-			readServerRunnable.initialize();
 			new Thread(readServerRunnable).start();
+		} catch (IOException e) {
+			this.log.println("Could not start data server: " + e.getMessage());
+			this.stopReadServer();
 		}
 	}
 	
@@ -97,9 +119,18 @@ public class Context {
 	}
 	
 	public void startWriteClient(String ip, int port) {
-		if(writeClientRunnable == null) {
+		if(writeClientRunnable != null) {
+			this.stopWriteClient();
+		}
+
+		this.log.println("Trying to connect to simulator on " + ip + ":" + port + "...");
+		try {
 			writeClientRunnable = new WriteClientRunnable(ip, port, this);
+			this.log.println("Connected to simulator successfully.");
 			new Thread(writeClientRunnable).start();
+		} catch (IOException e) {
+			this.log.println("Could not connect to simulator: " + e.getMessage() + ".");
+			this.stopWriteClient();
 		}
 	}
 	

@@ -2,10 +2,12 @@ package model.Interpreter;
 
 import model.Command.*;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 
 public class MyParser implements Parser {
+	private PrintStream log;
 	private HashMap<String, Command> commandMap;
 	
 	public MyParser(Context context) {
@@ -24,6 +26,8 @@ public class MyParser implements Parser {
 		
 		// implicit command. key contains spaces, therefore cannot be found in token list
 		commandMap.put(" set ", new SetCommand(context));
+
+		this.log = context.getLog();
 	}
 	
 	public void parse(List<String> tokens) {
@@ -39,7 +43,7 @@ public class MyParser implements Parser {
 				idx += jump;
 			}
 		} catch(Exception e) {
-			System.out.println(e.getMessage());
+			this.log.println(e.getMessage());
 		}
 	}
 }

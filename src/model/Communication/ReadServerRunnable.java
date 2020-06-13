@@ -43,7 +43,6 @@ public class ReadServerRunnable implements Runnable {
 	private Context context;
 	
 	private ServerSocket serverSocket;
-	private Socket connectionSocket;
 
 	public ReadServerRunnable(int port, int frequency, Context context) throws IOException {
 		this.frequency = frequency;
@@ -51,20 +50,38 @@ public class ReadServerRunnable implements Runnable {
 		this.context = context;
 		
 		serverSocket = new ServerSocket(port);
-	}
-	
-	public void initialize() throws IOException {
-		// Accept Client
-		this.connectionSocket = serverSocket.accept();
+		this.context.getLog().println("Data server open on port " + port + "...");
+		this.context.getLog().println("Start the simulator now.");
 	}
 
 	public void run() {
-		int sleep = 1000 / frequency;
-		BufferedReader reader = null;
+		Socket connectionSocket = null;
+
+		// Accept Simulator
 		try {
-			reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-			while(!stop && !connectionSocket.isClosed()) {
-				String line = reader.readLine();
+			connectionSocket = serverSocket.accept();
+		} catch (IOException e) {
+			this.context.getLog().println("Could not accept simulator: " + e.getMessage());
+			return;
+		} finally {
+			if(connectionSocket != null)
+				try {
+					serverSocket.close();
+				} catch (IOException ignore) {}
+		}
+
+		// Read simulator data
+		try {
+			this.context.getLog().println("Simulator connected successfully.");
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+			String line;
+			while(!stop) {
+				line = reader.readLine();
+				if (line == null) {
+					this.context.getLog().println("Simulator is not active. Stopping data server.");
+					return;
+				}
+
 				double[] data = Arrays.stream(line.split(","))
 						.mapToDouble(Double::parseDouble)
 						.toArray();
@@ -72,12 +89,12 @@ public class ReadServerRunnable implements Runnable {
 				this.updateFields(data);
 			}
 		} catch(IOException e) {
-			e.printStackTrace();
+			this.context.getLog().println("Could not read from simulator: " + e.getMessage());
 		} finally {
 			if(connectionSocket != null)
 				try {
 					connectionSocket.close();
-				} catch(Exception ee) {}
+				} catch(Exception ignore) {}
 		}
 	}
 

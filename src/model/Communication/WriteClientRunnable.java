@@ -1,6 +1,7 @@
 package model.Communication;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,36 +24,28 @@ public class WriteClientRunnable implements Runnable {
 		}
 	}
 	
-	public WriteClientRunnable(String ip, int port, Context context) {
+	public WriteClientRunnable(String ip, int port, Context context) throws IOException {
 		this.stop = false;
-		this.queue = new LinkedBlockingQueue<SetData>();
+		this.queue = new LinkedBlockingQueue<>();
 		this.context = context;
-		
-		try {
-			connectionSocket=new Socket(ip, port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		this.outputStream = new Socket(ip, port).getOutputStream();
 	}
 	
-	private Socket connectionSocket;
+	private final OutputStream outputStream;
 	
 	public void run() {
-		try {
-			PrintStream printer = new PrintStream(connectionSocket.getOutputStream());
-			while(!stop && !connectionSocket.isClosed()) {
-				try {
-					SetData data = queue.poll(100, TimeUnit.MILLISECONDS);
-					if(!connectionSocket.isClosed() && data != null) {
-						printer.print("set " + data.path + " " + data.value + "\r\n");
-					}
-				} catch (InterruptedException ignore) {}
-				if(queue.isEmpty()) synchronized(context) { context.notify(); }
-			}
+		PrintStream printer = new PrintStream(this.outputStream);
+		while(!stop) {
+			try {
+				SetData data = queue.poll(100, TimeUnit.MILLISECONDS);
+				if(data != null) {
+					printer.print("set " + data.path + " " + data.value + "\r\n");
+				}
+			} catch (InterruptedException ignore) {}
 			if(queue.isEmpty()) synchronized(context) { context.notify(); }
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		if(queue.isEmpty()) synchronized(context) { context.notify(); }
 	}
 	
 	public void setPathValue(String path, double value) {
@@ -60,13 +53,9 @@ public class WriteClientRunnable implements Runnable {
 	}
 	
 	public void sendDisconnect() {
-		try {
-			stop();
-			PrintStream printer = new PrintStream(connectionSocket.getOutputStream());
-			printer.println("quit\n");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.stop();
+		PrintStream printer = new PrintStream(this.outputStream);
+		printer.println("quit\n");
 	}
 	
 	public void stop() {

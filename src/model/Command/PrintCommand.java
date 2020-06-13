@@ -26,10 +26,10 @@ public class PrintCommand implements Command {
 				throw new CommandException("PrintCommand", "Missing end of string '\"'.");
 
 			for(int i = index + 2; i < end; i++) {
-				System.out.print(tokens.get(i));
-				System.out.print(" ");
+				this.context.getLog().print(tokens.get(i));
+				this.context.getLog().print(" ");
 			}
-			System.out.println();
+			this.context.getLog().println();
 			return end - index + 1;
 		}
 
@@ -40,7 +40,7 @@ public class PrintCommand implements Command {
 		if(expression == null)
 			throw new CommandException("PrintCommand", "Expression '" + expressionString + "' is invalid.");
 
-		System.out.println(expression.calculate());
+		this.context.getLog().println(expression.calculate());
 		return expressionEnd - index;
 	}
 	

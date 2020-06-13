@@ -3,6 +3,7 @@ package viewmodel;
 import javafx.beans.property.*;
 import model.InterpreterModel;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -36,6 +37,10 @@ public class ViewModel extends Observable implements Observer {
         bindMap.put("rpm",                  "/engines/engine/rpm");
         bindMap.put("breaks",               "/controls/flight/speedbrake");
         this.model.initializeBinds(bindMap);
+    }
+
+    public void setLog(PrintStream log) {
+        this.model.setLog(log);
     }
 
     public void set(String property) {

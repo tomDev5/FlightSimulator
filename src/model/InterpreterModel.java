@@ -3,6 +3,7 @@ package model;
 import model.Interpreter.Interpreter;
 import model.Interpreter.MyInterpreter;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Observable;
 
@@ -15,14 +16,16 @@ public class InterpreterModel extends Observable {
         run_thread = null;
     }
 
+    public void setLog(PrintStream log) {
+        this.interpreter.setLog(log);
+    }
+
     public void connect(String ip, int port) {
         this.interpreter.interpret("connect " + ip + " " + port);
     }
 
     public void openDataServer(int port) {
-        this.stop();
-        run_thread = new Thread(() -> this.interpreter.interpret("openDataServer " + port + " 10"));
-        run_thread.start();
+        this.interpreter.interpret("openDataServer " + port + " 10");
     }
 
     public void initializeBinds(HashMap<String, String> parameters) {
