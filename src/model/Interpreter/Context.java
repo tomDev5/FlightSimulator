@@ -100,6 +100,7 @@ public class Context {
 	public void startReadServer(int port, int frequency) {
 		if(readServerRunnable != null) {
 			this.stopReadServer();
+			this.log.println("Stopped previous data server.");
 		}
 
 		try {
@@ -121,6 +122,7 @@ public class Context {
 	public void startWriteClient(String ip, int port) {
 		if(writeClientRunnable != null) {
 			this.stopWriteClient();
+			this.log.println("Stopped previous connection.");
 		}
 
 		this.log.println("Trying to connect to simulator on " + ip + ":" + port + "...");
