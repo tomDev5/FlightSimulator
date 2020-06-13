@@ -21,16 +21,21 @@ public class MainWindowController implements Observer {
     double xPos;
     double yPos;
     double OriginalSceneX, OriginalSceneY;
-    double TranslateX, TranslateY;
+    double NewX, NewY;
 
     private ViewModel viewModel;
     private Stage stage;
 
-    @FXML private Slider throttleSld, rudderSld;
-    @FXML private ToggleGroup modeTgp;
-    @FXML private RadioButton manualRdo, autopilotRdo;
-    @FXML private Circle joystick;
-    @FXML private TextArea autopilotTxa, outputTxa;
+    @FXML
+    private Slider throttleSld, rudderSld;
+    @FXML
+    private ToggleGroup modeTgp;
+    @FXML
+    private RadioButton manualRdo, autopilotRdo;
+    @FXML
+    private Circle joystick, ExternalCircle;
+    @FXML
+    private TextArea autopilotTxa, outputTxa;
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
@@ -40,13 +45,14 @@ public class MainWindowController implements Observer {
 
         joystick.setOnMousePressed(circleOnMousePressedEventHandler);
         joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
         joystick.setOnMouseReleased(circleOnMouseReleaseEventHandler);
+
+        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
         this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
 
     private final ChangeListener<Toggle> modeGroupListener = (observableValue, toggle, t1) -> {
-        String id = ((RadioButton)t1.getToggleGroup().getSelectedToggle()).getId();
+        String id = ((RadioButton) t1.getToggleGroup().getSelectedToggle()).getId();
         if (id.equals(autopilotRdo.getId()))
             this.viewModel.run_autopilot();
         else if (id.equals(manualRdo.getId()))
@@ -73,8 +79,8 @@ public class MainWindowController implements Observer {
                 public void handle(MouseEvent t) {
                     OriginalSceneX = t.getSceneX();
                     OriginalSceneY = t.getSceneY();
-                    TranslateX = ((Circle)(t.getSource())).getTranslateX();
-                    TranslateY = ((Circle)(t.getSource())).getTranslateY();
+                    NewX = ((Circle) (t.getSource())).getTranslateX();
+                    NewY = ((Circle) (t.getSource())).getTranslateY();
                 }
             };
 
@@ -85,11 +91,12 @@ public class MainWindowController implements Observer {
                 public void handle(MouseEvent t) {
                     double offsetX = t.getSceneX() - OriginalSceneX;
                     double offsetY = t.getSceneY() - OriginalSceneY;
-                    double newTranslateX = TranslateX + offsetX;
-                    double newTranslateY = TranslateY + offsetY;
-
-                    ((Circle)(t.getSource())).setTranslateX(newTranslateX);
-                    ((Circle)(t.getSource())).setTranslateY(newTranslateY);
+                    double TempX = NewX + offsetX;
+                    double TempY = NewY + offsetY;
+                    if (Math.pow(TempX - ExternalCircle.getCenterX(), 2) + Math.pow(TempY - ExternalCircle.getCenterY(), 2) <= Math.pow(ExternalCircle.getRadius() - joystick.getRadius(), 2)) {
+                        ((Circle) (t.getSource())).setTranslateX(TempX);
+                        ((Circle) (t.getSource())).setTranslateY(TempY);
+                    }
                 }
             };
 
@@ -97,8 +104,8 @@ public class MainWindowController implements Observer {
         @Override
         public void handle(MouseEvent t) {
 
-            ((Circle)(t.getSource())).setTranslateX(TranslateX);
-            ((Circle)(t.getSource())).setTranslateY(TranslateY);
+            ((Circle)(t.getSource())).setTranslateX(NewX);
+            ((Circle)(t.getSource())).setTranslateY(NewY);
         }
     };
     public void load_script() {
