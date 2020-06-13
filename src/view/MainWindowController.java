@@ -20,8 +20,8 @@ import java.util.Optional;
 public class MainWindowController implements Observer {
     double xPos;
     double yPos;
-    double orgSceneX, orgSceneY;
-    double orgTranslateX, orgTranslateY;
+    double OriginalSceneX, OriginalSceneY;
+    double TranslateX, TranslateY;
 
     private ViewModel viewModel;
     private Stage stage;
@@ -41,7 +41,7 @@ public class MainWindowController implements Observer {
         joystick.setOnMousePressed(circleOnMousePressedEventHandler);
         joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
         modeTgp.selectedToggleProperty().addListener(modeGroupListener);
-
+        joystick.setOnMouseReleased(circleOnMouseReleaseEventHandler);
         this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
 
@@ -71,10 +71,10 @@ public class MainWindowController implements Observer {
 
                 @Override
                 public void handle(MouseEvent t) {
-                    orgSceneX = t.getSceneX();
-                    orgSceneY = t.getSceneY();
-                    orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
-                    orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+                    OriginalSceneX = t.getSceneX();
+                    OriginalSceneY = t.getSceneY();
+                    TranslateX = ((Circle)(t.getSource())).getTranslateX();
+                    TranslateY = ((Circle)(t.getSource())).getTranslateY();
                 }
             };
 
@@ -83,16 +83,24 @@ public class MainWindowController implements Observer {
 
                 @Override
                 public void handle(MouseEvent t) {
-                    double offsetX = t.getSceneX() - orgSceneX;
-                    double offsetY = t.getSceneY() - orgSceneY;
-                    double newTranslateX = orgTranslateX + offsetX;
-                    double newTranslateY = orgTranslateY + offsetY;
+                    double offsetX = t.getSceneX() - OriginalSceneX;
+                    double offsetY = t.getSceneY() - OriginalSceneY;
+                    double newTranslateX = TranslateX + offsetX;
+                    double newTranslateY = TranslateY + offsetY;
 
                     ((Circle)(t.getSource())).setTranslateX(newTranslateX);
                     ((Circle)(t.getSource())).setTranslateY(newTranslateY);
                 }
             };
 
+    EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent t) {
+
+            ((Circle)(t.getSource())).setTranslateX(TranslateX);
+            ((Circle)(t.getSource())).setTranslateY(TranslateY);
+        }
+    };
     public void load_script() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
