@@ -23,6 +23,9 @@ import java.util.function.Consumer;
 public class MainWindowController implements Observer {
     double xPos;
     double yPos;
+    double orgSceneX, orgSceneY;
+    double orgTranslateX, orgTranslateY;
+
     private ViewModel viewModel;
     private Stage stage;
 
@@ -38,7 +41,8 @@ public class MainWindowController implements Observer {
         viewModel.rudder.bind(rudderSld.valueProperty());
         viewModel.autopilot.bind(autopilotTxa.textProperty());
 
-        joystick.setOnMousePressed(joystickClick);
+        joystick.setOnMousePressed(circleOnMousePressedEventHandler);
+        joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
         modeTgp.selectedToggleProperty().addListener(modeGroupListener);
     }
 
@@ -63,7 +67,32 @@ public class MainWindowController implements Observer {
                     joystick.setCenterY(t.getSceneY());
                 }
             };
+    EventHandler<MouseEvent> circleOnMousePressedEventHandler =
+            new EventHandler<MouseEvent>() {
 
+                @Override
+                public void handle(MouseEvent t) {
+                    orgSceneX = t.getSceneX();
+                    orgSceneY = t.getSceneY();
+                    orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
+                    orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+                }
+            };
+
+    EventHandler<MouseEvent> circleOnMouseDraggedEventHandler =
+            new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent t) {
+                    double offsetX = t.getSceneX() - orgSceneX;
+                    double offsetY = t.getSceneY() - orgSceneY;
+                    double newTranslateX = orgTranslateX + offsetX;
+                    double newTranslateY = orgTranslateY + offsetY;
+
+                    ((Circle)(t.getSource())).setTranslateX(newTranslateX);
+                    ((Circle)(t.getSource())).setTranslateY(newTranslateY);
+                }
+            };
 
 
     public void load_script() {
