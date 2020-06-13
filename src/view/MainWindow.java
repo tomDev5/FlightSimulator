@@ -36,6 +36,7 @@ public class MainWindow extends Application {
         Parent root = loader.load();
         MainWindowController view = loader.getController(); // View
 
+        view.setStage(stage);
         view.setViewModel(viewModel);
         viewModel.addObserver(view);
         model.addObserver(viewModel);

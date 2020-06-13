@@ -12,7 +12,7 @@ public class WriteClientRunnable implements Runnable {
 	private volatile boolean stop;
 	
 	private LinkedBlockingQueue<SetData> queue;
-	private Context context;
+	private final Context context;
 	
 	private class SetData {
 		public String path;
@@ -46,7 +46,7 @@ public class WriteClientRunnable implements Runnable {
 					if(!connectionSocket.isClosed() && data != null) {
 						printer.print("set " + data.path + " " + data.value + "\r\n");
 					}
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException ignore) {}
 				if(queue.isEmpty()) synchronized(context) { context.notify(); }
 			}
 			if(queue.isEmpty()) synchronized(context) { context.notify(); }

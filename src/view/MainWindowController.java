@@ -1,33 +1,57 @@
 package view;
 
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Slider;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Pair;
 import viewmodel.ViewModel;
 
-import java.net.URL;
+import java.io.*;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.ResourceBundle;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class MainWindowController implements Observer {
-double xPos;
-double yPos;
-    ViewModel viewModel;
-    @FXML
-    private Slider throttle, rudder;
-    @FXML
-    private Circle joystick;
+    double xPos;
+    double yPos;
+    private ViewModel viewModel;
+    private Stage stage;
+
+    @FXML private Slider throttleSld, rudderSld;
+    @FXML private ToggleGroup modeTgp;
+    @FXML private RadioButton manualRdo, autopilotRdo;
+    @FXML private Circle joystick;
+    @FXML private TextArea autopilotTxa;
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
-        viewModel.throttle.bind(throttle.valueProperty());
-        viewModel.rudder.bind(rudder.valueProperty());
-        joystick.setOnMousePressed(joystickClick);
+        viewModel.throttle.bind(throttleSld.valueProperty());
+        viewModel.rudder.bind(rudderSld.valueProperty());
+        viewModel.autopilot.bind(autopilotTxa.textProperty());
 
+        joystick.setOnMousePressed(joystickClick);
+        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
+    }
+
+    private final ChangeListener<Toggle> modeGroupListener = (observableValue, toggle, t1) -> {
+        String id = ((RadioButton)t1.getToggleGroup().getSelectedToggle()).getId();
+        if (id.equals(autopilotRdo.getId()))
+            this.viewModel.run_autopilot();
+        else if (id.equals(manualRdo.getId()))
+            this.viewModel.stop_autopilot();
+    };
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     EventHandler<MouseEvent> joystickClick =
@@ -42,7 +66,108 @@ double yPos;
 
 
 
+    public void load_script() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        File file = fileChooser.showOpenDialog(this.stage);
 
+        if (file != null) {
+            String path = file.getPath();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(path)))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while((line = reader.readLine()) != null) {
+                    sb.append(line);
+                    sb.append("\n");
+                }
+                autopilotTxa.setText(sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void open_server() {
+        Dialog<Integer> dialog = new Dialog<>();
+        dialog.setTitle("Start Data Server");
+
+        ButtonType connectButtonType = new ButtonType("Start Server", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(connectButtonType, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        TextField port = new TextField();
+        port.setPromptText("5050");
+
+        gridPane.add(new Label("Port:"), 0, 1);
+        gridPane.add(port, 1, 1);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == connectButtonType) {
+                String _port = port.getText();
+                if(_port.length() == 0)
+                    _port = "5050";
+
+                return Integer.parseInt(_port);
+            }
+            return null;
+        });
+
+        Optional<Integer> result = dialog.showAndWait();
+        result.ifPresent(p -> {
+            this.viewModel.openDataServer(p);
+
+        });
+    }
+
+    public void connect() {
+        Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+        dialog.setTitle("Connect to Flight Simulator");
+
+        ButtonType connectButtonType = new ButtonType("Connect", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(connectButtonType, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        TextField ip = new TextField();
+        ip.setPromptText("127.0.0.1");
+
+        TextField port = new TextField();
+        port.setPromptText("6060");
+
+        gridPane.add(new Label("IP:"), 0, 0);
+        gridPane.add(ip, 1, 0);
+        gridPane.add(new Label("Port:"), 0, 1);
+        gridPane.add(port, 1, 1);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == connectButtonType) {
+                String _ip = ip.getText();
+                if(_ip.length() == 0)
+                    _ip = "127.0.0.1";
+
+                String _port = port.getText();
+                if(_port.length() == 0)
+                    _port = "6060";
+
+                return new Pair<>(_ip, Integer.parseInt(_port));
+            }
+            return null;
+        });
+
+        Optional<Pair<String, Integer>> result = dialog.showAndWait();
+
+        result.ifPresent(pair -> this.viewModel.connect(pair.getKey(), pair.getValue()));
+    }
 
     public void throttle_dragged(){
         this.viewModel.set("throttle");
@@ -51,9 +176,9 @@ double yPos;
     public void rudder_dragged(){
         this.viewModel.set("rudder");
     }
-    public void changeJoyStick(){;
-    System.out.println("xd");
 
+    public void changeJoyStick(){
+        System.out.println("xd");
     }
 
     @Override

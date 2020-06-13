@@ -1,40 +1,54 @@
 package model;
 
-import javafx.beans.InvalidationListener;
 import model.Interpreter.Interpreter;
 import model.Interpreter.MyInterpreter;
 
+import java.util.HashMap;
 import java.util.Observable;
-import java.util.Observer;
 
 public class InterpreterModel extends Observable {
     Interpreter interpreter;
+    Thread run_thread;
 
     public InterpreterModel() {
         this.interpreter = new MyInterpreter();
+        run_thread = null;
     }
 
-    public void var(String property) {
-        this.interpreter.interpret("var " + property);
+    public void connect(String ip, int port) {
+        this.interpreter.interpret("connect " + ip + " " + port);
     }
 
-    public void bind(String property, String path) {
-        this.interpreter.interpret(property + " = bind " + path);
+    public void openDataServer(int port) {
+        this.stop();
+        run_thread = new Thread(() -> this.interpreter.interpret("openDataServer " + port + " 10"));
+        run_thread.start();
+    }
+
+    public void initializeBinds(HashMap<String, String> parameters) {
+        for(String property : parameters.keySet())
+            this.interpreter.interpret("var " + property + " = bind " + parameters.get(property));
     }
 
     public void set(String property, double value) {
         this.interpreter.interpret(property + " = " + value);
     }
 
-    public void interpret(String code) {
-        this.interpreter.interpret(code);
+    public void run(String code) {
+        this.stop();
+        run_thread = new Thread(() -> interpreter.interpret(code));
+        run_thread.start();
     }
 
     public void stop() {
-        this.interpreter.stop();
+        if(run_thread != null) {
+            run_thread.stop();
+            run_thread = null;
+        }
     }
 
     public void quit() {
+        this.stop();
         this.interpreter.quit();
     }
 }

@@ -19,11 +19,6 @@ public class MyInterpreter implements Interpreter {
 		return this.context.getReturnValue();
 	}
 
-	@Override
-	public void stop() {
-		parser.stop();
-	}
-
 	public void quit() {
 		context.stopThreads();
 	}

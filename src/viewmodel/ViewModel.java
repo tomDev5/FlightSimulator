@@ -3,6 +3,8 @@ package viewmodel;
 import javafx.beans.property.*;
 import model.InterpreterModel;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -10,20 +12,30 @@ import java.util.Observer;
 public class ViewModel extends Observable implements Observer {
     private InterpreterModel model;
     public DoubleProperty throttle, rudder;
-    public StringProperty throttleTxt, rudderTxt;
+    public StringProperty autopilot;
 
     public ViewModel(InterpreterModel model) {
         this.model = model;
         this.throttle = new SimpleDoubleProperty();
         this.rudder = new SimpleDoubleProperty();
-        this.throttleTxt = new SimpleStringProperty();
-        this.rudderTxt = new SimpleStringProperty();
+        this.autopilot = new SimpleStringProperty();
 
-        this.model.var("throttle");
-        this.model.set("throttle", 0.0);
-
-        this.model.var("rudder");
-        this.model.set("rudder", 0.0);
+        HashMap<String, String> bindMap = new HashMap<>();
+        bindMap.put("airspeed",             "/instrumentation/airspeed-indicator/indicated-speed-kt");
+        bindMap.put("altitude",             "/instrumentation/altimeter/indicated-altitude-ft");
+        bindMap.put("pressure",             "/instrumentation/altimeter/pressure-alt-ft");
+        bindMap.put("pitch",                "/instrumentation/attitude-indicator/indicated-pitch-deg");
+        bindMap.put("roll",                 "/instrumentation/attitude-indicator/indicated-roll-deg");
+        bindMap.put("heading",              "/instrumentation/heading-indicator/indicated-heading-deg");
+        bindMap.put("speed",                "/instrumentation/vertical-speed-indicator/indicated-speed-fpm");
+        bindMap.put("aileron",              "/controls/flight/aileron");
+        bindMap.put("elevator",             "/controls/flight/elevator");
+        bindMap.put("rudder",               "/controls/flight/rudder");
+        bindMap.put("flaps",                "/controls/flight/flaps");
+        bindMap.put("throttle",             "/controls/engines/current-engine/throttle");
+        bindMap.put("rpm",                  "/engines/engine/rpm");
+        bindMap.put("breaks",               "/controls/flight/speedbrake");
+        this.model.initializeBinds(bindMap);
     }
 
     public void set(String property) {
@@ -37,8 +49,26 @@ public class ViewModel extends Observable implements Observer {
                 break;
         }
 
-        if(value != null)
+        if (value != null)
             model.set(property, value);
+    }
+
+    public void connect(String ip, int port) {
+        this.model.connect(ip, port);
+    }
+
+    public void openDataServer(int port) {
+        this.model.openDataServer(port);
+    }
+
+    public void run_autopilot() {
+        String content = autopilot.get();
+        if(content != null && content.length() > 0)
+            this.model.run(content);
+    }
+
+    public void stop_autopilot() {
+        this.model.stop();
     }
 
     public void quit() {
