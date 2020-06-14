@@ -93,9 +93,8 @@ public class ViewModel extends Observable implements Observer {
     public void update(Observable observable, Object object) {
         if (observable == model) {
             if(object instanceof SampleRunnable.SampleData) {
-                SampleRunnable.SampleData data = (SampleRunnable.SampleData) object;
-
-                System.out.println(data.lon + " " + data.lat + " " + data.heading);
+                setChanged();
+                notifyObservers(object);
             }
         }
     }

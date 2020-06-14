@@ -10,6 +10,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import model.SampleRunnable;
 import viewmodel.ViewModel;
 
 import java.io.*;
@@ -216,5 +217,14 @@ public class MainWindowController implements Observer, Initializable {
     }
 
     @Override
-    public void update(Observable o, Object arg) {}
+    public void update(Observable o, Object arg) {
+        if(o == viewModel) {
+            if(arg instanceof SampleRunnable.SampleData) {
+                SampleRunnable.SampleData data = (SampleRunnable.SampleData) arg;
+
+                System.out.println(data.lon + " " + data.lat + " " + data.heading);
+                // TODO: Draw
+            }
+        }
+    }
 }

@@ -49,11 +49,13 @@ public class SampleRunnable implements Runnable {
                 try { TimeUnit.MILLISECONDS.sleep(this.milliseconds); } catch (InterruptedException ignore) { }
 
                 writer.print("get /position/longitude-deg\r\n");
-                double lon = Double.parseDouble(reader.readLine());
                 writer.print("get /position/latitude-deg\r\n");
-                double lat = Double.parseDouble(reader.readLine());
                 writer.print("get /orientation/heading-deg\r\n");
-                double heading = Double.parseDouble(reader.readLine());
+                writer.flush();
+
+                double lon = Double.parseDouble(reader.readLine().split("'")[1]);
+                double lat = Double.parseDouble(reader.readLine().split("'")[1]);
+                double heading = Double.parseDouble(reader.readLine().split("'")[1]);
 
                 this.sampler.accept(new SampleData(lon, lat, heading));
             }

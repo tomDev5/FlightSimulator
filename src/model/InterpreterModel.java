@@ -32,7 +32,10 @@ public class InterpreterModel extends Observable {
         }
 
         SampleRunnable runnable = new SampleRunnable(ip, port);
-        runnable.setSampler(this::notifyObservers, 4000);
+        runnable.setSampler(sampleData -> {
+            this.setChanged();
+            this.notifyObservers(sampleData);
+        }, 4000);
         this.sample_thread = new Thread(runnable);
         this.sample_thread.start();
 
@@ -62,14 +65,13 @@ public class InterpreterModel extends Observable {
             run_thread.stop();
             run_thread = null;
         }
+    }
 
+    public void quit() {
         if(this.sample_thread != null) {
             this.sample_thread.stop();
             this.sample_thread = null;
         }
-    }
-
-    public void quit() {
         this.stop();
         this.interpreter.quit();
     }

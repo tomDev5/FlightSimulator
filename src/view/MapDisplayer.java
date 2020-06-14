@@ -18,6 +18,8 @@ public class MapDisplayer extends Canvas {
     private static final String PLANE_PATH = "./resources/pictures/plane.png";
     private static final double IMAGE_SIZE = 20;
 
+    private double plane_lon, plane_lat, plane_heading;
+
     private double lon, lat;
     private double cellSize;
     private double[][] data;
