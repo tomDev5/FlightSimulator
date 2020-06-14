@@ -1,10 +1,9 @@
 package view;
 
 import javafx.beans.value.ChangeListener;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
@@ -13,16 +12,13 @@ import javafx.util.Pair;
 import viewmodel.ViewModel;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class MainWindowController implements Observer {
-    double xPos;
-    double yPos;
-    double OriginalSceneX, OriginalSceneY;
-    double NewX, NewY;
-
+public class MainWindowController implements Observer, Initializable {
     private ViewModel viewModel;
     private Stage stage;
 
@@ -33,22 +29,40 @@ public class MainWindowController implements Observer {
     @FXML
     private RadioButton manualRdo, autopilotRdo;
     @FXML
-    private Circle joystick, ExternalCircle;
+    private Circle external;
+    @FXML
+    private JoystickCircle joystick;
     @FXML
     private TextArea autopilotTxa, outputTxa;
+    @FXML
+    private MapDisplayer mapDisplayer;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
+
+        joystick.setExternalCircle(external);
+        joystick.initialize();
+        joystick.setOnChangeCallback(() -> {
+            viewModel.set("aileron");
+            viewModel.set("elevator");
+        });
+        joystick.setIsActivePredicate(() -> manualRdo.isSelected());
+
+        mapDisplayer.clear();
+        mapDisplayer.setOnMouseClicked(mouseEvent -> {
+            mapDisplayer.select(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        });
+    }
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
         viewModel.throttle.bind(throttleSld.valueProperty());
         viewModel.rudder.bind(rudderSld.valueProperty());
         viewModel.autopilot.bind(autopilotTxa.textProperty());
-
-        joystick.setOnMousePressed(circleOnMousePressedEventHandler);
-        joystick.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-        joystick.setOnMouseReleased(circleOnMouseReleaseEventHandler);
-
-        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
-        this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
+        viewModel.aileron.bind(joystick.aileronProperty());
+        viewModel.elevator.bind(joystick.elevatorProperty());
+        viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
 
     private final ChangeListener<Toggle> modeGroupListener = (observableValue, toggle, t1) -> {
@@ -63,54 +77,9 @@ public class MainWindowController implements Observer {
         this.stage = stage;
     }
 
-    EventHandler<MouseEvent> joystickClick =
-            new EventHandler<MouseEvent>() {
-
-                @Override
-                public void handle(MouseEvent t) {
-                    joystick.setCenterX(t.getSceneX());
-                    joystick.setCenterY(t.getSceneY());
-                }
-            };
-    EventHandler<MouseEvent> circleOnMousePressedEventHandler =
-            new EventHandler<MouseEvent>() {
-
-                @Override
-                public void handle(MouseEvent t) {
-                    OriginalSceneX = t.getSceneX();
-                    OriginalSceneY = t.getSceneY();
-                    NewX = ((Circle) (t.getSource())).getTranslateX();
-                    NewY = ((Circle) (t.getSource())).getTranslateY();
-                }
-            };
-
-    EventHandler<MouseEvent> circleOnMouseDraggedEventHandler =
-            new EventHandler<MouseEvent>() {
-
-                @Override
-                public void handle(MouseEvent t) {
-                    double offsetX = t.getSceneX() - OriginalSceneX;
-                    double offsetY = t.getSceneY() - OriginalSceneY;
-                    double TempX = NewX + offsetX;
-                    double TempY = NewY + offsetY;
-                    if (Math.pow(TempX - ExternalCircle.getCenterX(), 2) + Math.pow(TempY - ExternalCircle.getCenterY(), 2) <= Math.pow(ExternalCircle.getRadius() - joystick.getRadius(), 2)) {
-                        ((Circle) (t.getSource())).setTranslateX(TempX);
-                        ((Circle) (t.getSource())).setTranslateY(TempY);
-                    }
-                }
-            };
-
-    EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent t) {
-
-            ((Circle)(t.getSource())).setTranslateX(NewX);
-            ((Circle)(t.getSource())).setTranslateY(NewY);
-        }
-    };
     public void load_script() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Resource File");
+        fileChooser.setTitle("Load Script");
         File file = fileChooser.showOpenDialog(this.stage);
 
         if (file != null) {
@@ -127,6 +96,19 @@ public class MainWindowController implements Observer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void load_map() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Load Map");
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv"));
+        File file = fileChooser.showOpenDialog(this.stage);
+
+        if (file != null) {
+            String path = file.getPath();
+
+            mapDisplayer.loadFromCSV(path);
         }
     }
 

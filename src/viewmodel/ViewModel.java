@@ -12,13 +12,15 @@ import java.util.Observer;
 
 public class ViewModel extends Observable implements Observer {
     private InterpreterModel model;
-    public DoubleProperty throttle, rudder;
+    public DoubleProperty throttle, rudder, elevator, aileron;
     public StringProperty autopilot;
 
     public ViewModel(InterpreterModel model) {
         this.model = model;
         this.throttle = new SimpleDoubleProperty();
         this.rudder = new SimpleDoubleProperty();
+        this.elevator = new SimpleDoubleProperty();
+        this.aileron = new SimpleDoubleProperty();
         this.autopilot = new SimpleStringProperty();
 
         HashMap<String, String> bindMap = new HashMap<>();
@@ -51,6 +53,12 @@ public class ViewModel extends Observable implements Observer {
                 break;
             case "throttle":
                 value = throttle.get();
+                break;
+            case "aileron":
+                value = aileron.get();
+                break;
+            case "elevator":
+                value = elevator.get();
                 break;
         }
 

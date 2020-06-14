@@ -6,11 +6,13 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
+<?import view.MapDisplayer?>
+<?import view.JoystickCircle?>
 <AnchorPane prefHeight="492.0" prefWidth="887.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
    <Text layoutX="293.0" layoutY="200.0" rotate="270.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Throttle" />
    <Button layoutX="161.0" layoutY="23.0" mnemonicParsing="false" onMouseClicked="#open_server" prefHeight="26.0" prefWidth="112.0" text="Start Server" />
    <Button layoutX="44.0" layoutY="23.0" mnemonicParsing="false" onMouseClicked="#connect" prefHeight="26.0" prefWidth="112.0" text="Connect" />
-   <Button layoutX="44.0" layoutY="312.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="112.0" text="Load CSV" />
+   <Button layoutX="44.0" layoutY="312.0" mnemonicParsing="false" onMouseClicked="#load_map" prefHeight="26.0" prefWidth="112.0" text="Load Map" />
    <Button layoutX="161.0" layoutY="312.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="112.0" text="Calculate Path" />
    <RadioButton fx:id="autopilotRdo" layoutX="681.0" layoutY="27.0" mnemonicParsing="false" text="Auto Pilot">
       <toggleGroup>
@@ -20,11 +22,12 @@
    <RadioButton fx:id="manualRdo" layoutX="416.0" layoutY="27.0" mnemonicParsing="false" text="Manual" toggleGroup="$modeTgp" />
    <Slider fx:id="throttleSld" layoutX="329.0" layoutY="125.0" majorTickUnit="0.1" max="1.0" min="0" minorTickCount="1" onMouseDragged="#throttle_dragged" orientation="VERTICAL" />
    <Slider fx:id="rudderSld" layoutX="389.0" layoutY="309.0" majorTickUnit="0.1" max="1.0" min="-1.0" minorTickCount="1" onMouseDragged="#rudder_dragged" />
-   <Circle fx:id="ExternalCircle" fill="WHITE" layoutX="459.0" layoutY="195.0" radius="100.0" stroke="BLACK" strokeType="INSIDE" />
-   <Circle fx:id="joystick" layoutX="459.0" layoutY="195.0" radius="50.0" stroke="BLACK" strokeType="INSIDE" />
+   <Circle fx:id="external" fill="WHITE" layoutX="459.0" layoutY="195.0" radius="100.0" stroke="BLACK" strokeType="INSIDE" />
+   <JoystickCircle fx:id="joystick" layoutX="459.0" layoutY="195.0" radius="30.0" stroke="BLACK" strokeType="INSIDE" />
    <TextArea fx:id="autopilotTxa" layoutX="615.0" layoutY="65.0" onMouseDragged="#changeJoyStick" prefHeight="230.0" prefWidth="230.0" />
-   <ImageView fitHeight="230.0" fitWidth="230.0" layoutX="44.0" layoutY="65.0" pickOnBounds="true">
-      <Image url="@image.jpg" /></ImageView>
+   <!--<ImageView fitHeight="230.0" fitWidth="230.0" layoutX="44.0" layoutY="65.0" pickOnBounds="true">
+      <Image url="@image.jpg" /></ImageView>-->
+   <MapDisplayer fx:id="mapDisplayer" height="230.0" width="230.0" layoutX="44.0" layoutY="65.0" pickOnBounds="true" />
    <Button layoutX="615.0" layoutY="312.0" mnemonicParsing="false" onMouseClicked="#load_script" prefHeight="26.0" prefWidth="230.0" text="Load Script" />
    <Text layoutX="435.0" layoutY="339.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rudder" />
    <Text layoutX="436.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="aileron" />
