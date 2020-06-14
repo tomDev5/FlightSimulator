@@ -4,16 +4,19 @@ import model.Interpreter.Interpreter;
 import model.Interpreter.MyInterpreter;
 
 import java.io.PrintStream;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.Observable;
 
 public class InterpreterModel extends Observable {
     Interpreter interpreter;
     Thread run_thread;
+    Thread sample_thread;
 
     public InterpreterModel() {
         this.interpreter = new MyInterpreter();
-        run_thread = null;
+        this.run_thread = null;
+        this.sample_thread = null;
     }
 
     public void setLog(PrintStream log) {
@@ -22,6 +25,17 @@ public class InterpreterModel extends Observable {
 
     public void connect(String ip, int port) {
         this.interpreter.interpret("connect " + ip + " " + port);
+
+        if(this.sample_thread != null) {
+            this.sample_thread.stop();
+            this.sample_thread = null;
+        }
+
+        SampleRunnable runnable = new SampleRunnable(ip, port);
+        runnable.setSampler(this::notifyObservers, 4000);
+        this.sample_thread = new Thread(runnable);
+        this.sample_thread.start();
+
     }
 
     public void openDataServer(int port) {
@@ -47,6 +61,11 @@ public class InterpreterModel extends Observable {
         if(run_thread != null) {
             run_thread.stop();
             run_thread = null;
+        }
+
+        if(this.sample_thread != null) {
+            this.sample_thread.stop();
+            this.sample_thread = null;
         }
     }
 

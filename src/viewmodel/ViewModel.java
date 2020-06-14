@@ -2,6 +2,7 @@ package viewmodel;
 
 import javafx.beans.property.*;
 import model.InterpreterModel;
+import model.SampleRunnable;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -89,5 +90,13 @@ public class ViewModel extends Observable implements Observer {
         this.model.quit();
     }
 
-    public void update(Observable observable, Object object) {}
+    public void update(Observable observable, Object object) {
+        if (observable == model) {
+            if(object instanceof SampleRunnable.SampleData) {
+                SampleRunnable.SampleData data = (SampleRunnable.SampleData) object;
+
+                System.out.println(data.lon + " " + data.lat + " " + data.heading);
+            }
+        }
+    }
 }
