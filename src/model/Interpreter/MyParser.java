@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MyParser implements Parser {
-	private PrintStream log;
+	private Context context;
 	private HashMap<String, Command> commandMap;
 	
 	public MyParser(Context context) {
-		commandMap = new HashMap<String, Command>();
+		commandMap = new HashMap<>();
 		commandMap.put("print", new PrintCommand(context));
 		commandMap.put("var", new VarCommand(context));
 		commandMap.put("return", new ReturnCommand(context));
@@ -27,7 +27,7 @@ public class MyParser implements Parser {
 		// implicit command. key contains spaces, therefore cannot be found in token list
 		commandMap.put(" set ", new SetCommand(context));
 
-		this.log = context.getLog();
+		this.context = context;
 	}
 	
 	public void parse(List<String> tokens) {
@@ -43,7 +43,7 @@ public class MyParser implements Parser {
 				idx += jump;
 			}
 		} catch(Exception e) {
-			this.log.println(e.getMessage());
+			this.context.getLog().println(e.getMessage());
 		}
 	}
 }

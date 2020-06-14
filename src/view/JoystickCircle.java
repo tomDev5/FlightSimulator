@@ -1,10 +1,10 @@
 package view;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.Circle;
-
-import java.util.function.BooleanSupplier;
 
 public class JoystickCircle extends Circle {
     private Circle externalCircle;
@@ -12,8 +12,8 @@ public class JoystickCircle extends Circle {
     private double orgSceneX, orgSceneY;
     private double newX, newY;
     private Runnable onChange;
-    private BooleanSupplier isActive;
 
+    private BooleanProperty isManualActiveProperty;
     private DoubleProperty aileronProperty;
     private DoubleProperty elevatorProperty;
 
@@ -21,10 +21,12 @@ public class JoystickCircle extends Circle {
         this.externalCircle = externalCircle;
     }
 
+    public BooleanProperty isManualActiveProperty() {
+        return isManualActiveProperty;
+    }
     public DoubleProperty aileronProperty() {
         return aileronProperty;
     }
-
     public DoubleProperty elevatorProperty() {
         return elevatorProperty;
     }
@@ -37,20 +39,13 @@ public class JoystickCircle extends Circle {
         this.onChange = null;
     }
 
-    public void setIsActivePredicate(BooleanSupplier isActive) {
-        this.isActive = isActive;
-    }
-
-    public void removeIsActivePredicate() {
-        this.isActive = null;
-    }
-
     public void initialize() {
         aileronProperty = new SimpleDoubleProperty();
         elevatorProperty = new SimpleDoubleProperty();
+        isManualActiveProperty = new SimpleBooleanProperty();
 
         this.setOnMousePressed(mouseEvent -> {
-            if (!isActive.getAsBoolean()) return;
+            if (!isManualActiveProperty.get()) return;
 
             orgSceneX = mouseEvent.getSceneX();
             orgSceneY = mouseEvent.getSceneY();
@@ -59,7 +54,7 @@ public class JoystickCircle extends Circle {
         });
 
         this.setOnMouseDragged(mouseEvent -> {
-            if (!isActive.getAsBoolean()) return;
+            if (!isManualActiveProperty.get()) return;
 
             double offsetX = mouseEvent.getSceneX() - orgSceneX;
             double offsetY = mouseEvent.getSceneY() - orgSceneY;
@@ -90,7 +85,7 @@ public class JoystickCircle extends Circle {
         });
 
         this.setOnMouseReleased(mouseEvent -> {
-            if (!isActive.getAsBoolean()) return;
+            if (!isManualActiveProperty.get()) return;
 
             setTranslateX(newX);
             setTranslateY(newY);

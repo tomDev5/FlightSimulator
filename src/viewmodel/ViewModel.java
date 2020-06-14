@@ -76,8 +76,9 @@ public class ViewModel extends Observable implements Observer {
 
     public void run_autopilot() {
         String content = autopilot.get();
-        if(content != null && content.length() > 0)
+        if(content != null && content.length() > 0) {
             this.model.run(content);
+        }
     }
 
     public void stop_autopilot() {

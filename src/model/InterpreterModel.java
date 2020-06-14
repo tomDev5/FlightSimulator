@@ -34,7 +34,7 @@ public class InterpreterModel extends Observable {
     }
 
     public void set(String property, double value) {
-        this.interpreter.interpret(property + " = " + value);
+        this.interpreter.interpret(String.format("%s = %.6f", property, value));
     }
 
     public void run(String code) {

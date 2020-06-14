@@ -19,7 +19,7 @@
          <ToggleGroup fx:id="modeTgp" />
       </toggleGroup>
    </RadioButton>
-   <RadioButton fx:id="manualRdo" layoutX="416.0" layoutY="27.0" mnemonicParsing="false" text="Manual" toggleGroup="$modeTgp" />
+   <RadioButton fx:id="manualRdo" layoutX="416.0" layoutY="27.0" mnemonicParsing="false" text="Manual" toggleGroup="$modeTgp" selected="true" />
    <Slider fx:id="throttleSld" layoutX="329.0" layoutY="125.0" majorTickUnit="0.1" max="1.0" min="0" minorTickCount="1" onMouseDragged="#throttle_dragged" orientation="VERTICAL" />
    <Slider fx:id="rudderSld" layoutX="389.0" layoutY="309.0" majorTickUnit="0.1" max="1.0" min="-1.0" minorTickCount="1" onMouseDragged="#rudder_dragged" />
    <Circle fx:id="external" fill="WHITE" layoutX="459.0" layoutY="195.0" radius="100.0" stroke="BLACK" strokeType="INSIDE" />

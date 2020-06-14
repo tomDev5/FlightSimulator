@@ -1,5 +1,6 @@
 package view;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -47,7 +48,6 @@ public class MainWindowController implements Observer, Initializable {
             viewModel.set("aileron");
             viewModel.set("elevator");
         });
-        joystick.setIsActivePredicate(() -> manualRdo.isSelected());
 
         mapDisplayer.clear();
         mapDisplayer.setOnMouseClicked(mouseEvent -> {
@@ -57,11 +57,24 @@ public class MainWindowController implements Observer, Initializable {
 
     public void setViewModel(ViewModel viewModel) {
         this.viewModel = viewModel;
+
+        // Bind to VM
         viewModel.throttle.bind(throttleSld.valueProperty());
         viewModel.rudder.bind(rudderSld.valueProperty());
         viewModel.autopilot.bind(autopilotTxa.textProperty());
-        viewModel.aileron.bind(joystick.aileronProperty());
-        viewModel.elevator.bind(joystick.elevatorProperty());
+
+        // Custom Bind: Autopilot radiobutton is enabled iff the script text area is not empty.
+        autopilotRdo.disableProperty().bind(Bindings.createBooleanBinding(() ->
+                        autopilotTxa.getText().trim().isEmpty(),
+                        autopilotTxa.textProperty()));
+
+        viewModel.aileron.bind(joystick.aileronProperty()); // Aileron slider enabled iff on manual mode
+        viewModel.elevator.bind(joystick.elevatorProperty()); // Elevator slider enabled iff on manual mode
+        joystick.isManualActiveProperty().bind(manualRdo.selectedProperty()); // Joystick is enabled iff on manual mode
+
+        throttleSld.disableProperty().bind(joystick.isManualActiveProperty().not()); // Throttle slider is enabled iff not on manual mode
+        rudderSld.disableProperty().bind(joystick.isManualActiveProperty().not()); // Rudder slider is enabled iff not on manual mode
+
         viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
 
