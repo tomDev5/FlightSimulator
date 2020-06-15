@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class MapDisplayer extends Canvas {
     private static final String PLANE_PATH = "./resources/pictures/plane.png";
     private static final double IMAGE_SIZE = 20;
 
-    private double plane_lon, plane_lat, plane_heading;
+    private Double plane_lon, plane_lat, plane_heading;
 
     private double lon, lat;
     private double cellSize;
@@ -58,7 +59,7 @@ public class MapDisplayer extends Canvas {
             // Read lon/lat line
             String[] coordinates = reader.readLine().split(",");
             this.lon = Double.parseDouble(coordinates[0]);
-            this.lat = Double.parseDouble(coordinates[0]);
+            this.lat = Double.parseDouble(coordinates[1]);
 
             // Read cell size line
             String cellSizeString = reader.readLine().split(",")[0];
@@ -89,6 +90,9 @@ public class MapDisplayer extends Canvas {
 
     // Draws height map, X on selected coordinates, plane (eventually)
     private void redraw() {
+        if(this.data == null)
+            return;
+
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
 
@@ -128,6 +132,26 @@ public class MapDisplayer extends Canvas {
             }
         }
 
+        if(this.plane_heading != null && this.plane_lat != null && this.plane_lon != null){
+            try {
+                System.out.println("lon: " + plane_lon + ", lat: " + plane_lat + ", heading: " + plane_heading);
+                System.out.println("lon idx: " + Math.floor(-(this.lon-this.plane_lon)/this.cellSize) + ", lat idx: " + Math.floor((this.lat-this.plane_lat)/this.cellSize));
+
+                Image image = new Image(new FileInputStream(PLANE_PATH));
+                graphicsContext.setFill(Color.WHITE);
+                graphicsContext.drawImage(image,
+                        Math.floor((this.lat-this.plane_lat)*this.cellSize),
+                        Math.floor(-(this.lon-this.plane_lon)*this.cellSize),
+                        IMAGE_SIZE,
+                        IMAGE_SIZE);
+            } catch (Exception e) {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setTitle("ERROR");
+                a.setContentText("Error while loading picture: " + e.getMessage());
+                a.show();
+            }
+        }
+
         // Draw border
         graphicsContext.setStroke(Color.LIGHTGRAY);
         graphicsContext.setLineWidth(2);
@@ -154,5 +178,12 @@ public class MapDisplayer extends Canvas {
             }
         }
         return result;
+    }
+
+    public void updatePlane(double lon, double lat, double heading){
+        this.plane_lon = lon;
+        this.plane_lat = lat;
+        this.plane_heading = heading;
+        redraw();
     }
 }

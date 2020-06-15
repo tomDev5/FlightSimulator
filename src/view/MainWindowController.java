@@ -222,8 +222,8 @@ public class MainWindowController implements Observer, Initializable {
             if(arg instanceof SampleRunnable.SampleData) {
                 SampleRunnable.SampleData data = (SampleRunnable.SampleData) arg;
 
-                System.out.println(data.lon + " " + data.lat + " " + data.heading);
                 // TODO: Draw
+                mapDisplayer.updatePlane(data.lon,data.lat,data.heading);
             }
         }
     }
