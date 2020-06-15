@@ -1,8 +1,12 @@
 var h0 = heading
+var diff
 breaks = 0
 throttle = 1
 while altitude < 1000 {
-	rudder = (h0 -heading)/20
+	diff = h0 - heading
+	if diff > 180 { diff = 360 - diff }
+	if diff < -180 { diff = 360 + diff }
+	rudder = diff/20
 	aileron = -roll / 70
 	elevator = pitch / 50
 	sleep 250
