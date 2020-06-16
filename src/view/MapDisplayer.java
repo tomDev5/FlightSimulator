@@ -1,6 +1,7 @@
 package view;
 
 import javafx.beans.NamedArg;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
@@ -10,7 +11,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.io.*;
@@ -34,9 +35,15 @@ public class MapDisplayer extends Pane implements Initializable {
         }
     }
 
-    private double height, width;
-    private Double plane_lon, plane_lat, plane_heading;
+    private DoubleProperty planeLonProperty;
+    private DoubleProperty planeLatProperty;
+    private DoubleProperty planeHeadingProperty;
 
+    public DoubleProperty planeLonProperty() { return this.planeLonProperty; }
+    public DoubleProperty planeLatProperty() { return this.planeLatProperty; }
+    public DoubleProperty planeHeadingProperty() { return this.planeHeadingProperty; }
+
+    private final double height, width;
     private double lon, lat;
     private double cell_km;
     private double[][] data;
@@ -48,6 +55,10 @@ public class MapDisplayer extends Pane implements Initializable {
 
     public MapDisplayer(@NamedArg("height") String height, @NamedArg("width") String width) {
         super();
+
+        this.planeLonProperty = new SimpleDoubleProperty();
+        this.planeLatProperty = new SimpleDoubleProperty();
+        this.planeHeadingProperty = new SimpleDoubleProperty();
 
         this.height = Double.parseDouble(height);
         this.width = Double.parseDouble(width);
@@ -65,20 +76,13 @@ public class MapDisplayer extends Pane implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.map.setLayoutX(0);
-        this.map.setLayoutY(0);
-        this.map.setHeight(this.height);
-        this.map.setWidth(this.width);
-
-        this.plane.setLayoutX(0);
-        this.plane.setLayoutY(0);
-        this.plane.setHeight(this.height);
-        this.plane.setWidth(this.width);
-
-        this.path.setLayoutX(0);
-        this.path.setLayoutY(0);
-        this.path.setHeight(this.height);
-        this.path.setWidth(this.width);
+        Canvas[] canvases = {this.map, this.plane, this.path};
+        for(Canvas canvas : canvases) {
+            canvas.setLayoutX(0);
+            canvas.setLayoutY(0);
+            canvas.setHeight(this.height);
+            canvas.setWidth(this.width);
+        }
     }
 
     public void selectTarget(double sceneX, double sceneY) {
@@ -89,14 +93,6 @@ public class MapDisplayer extends Pane implements Initializable {
 
             redraw_path();
         }
-    }
-
-    public void updatePlane(double lon, double lat, double heading){
-        this.plane_lon = lon;
-        this.plane_lat = lat;
-        this.plane_heading = heading;
-
-        redraw_plane();
     }
 
     public void loadFromCSV(String path) {
@@ -134,7 +130,9 @@ public class MapDisplayer extends Pane implements Initializable {
         this.redraw_map();
     }
 
-    private void redraw_map() {
+    public void redraw_map() {
+        if(this.data == null || this.data[0] == null) return;
+
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
 
@@ -154,61 +152,49 @@ public class MapDisplayer extends Pane implements Initializable {
     }
 
     // draws both path and target
-    private void redraw_path() {
-        if(this.data == null)
-            return;
+    public void redraw_path() {
+        if(this.data == null || this.data[0] == null) return;
 
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
 
         if (this.selected_row != null && this.selected_col != null) {
-            try {
-                GraphicsContext graphicsContext = this.path.getGraphicsContext2D();
-                graphicsContext.clearRect(0, 0, getWidth(), getHeight());
-                graphicsContext.drawImage(TARGET_IMAGE,
-                        this.selected_row * colWidth - IMAGE_SIZE / 2,
-                        this.selected_col * colHeight - IMAGE_SIZE / 2,
-                        IMAGE_SIZE,
-                        IMAGE_SIZE);
-            } catch (Exception e) {
-                Alert a = new Alert(Alert.AlertType.ERROR);
-                a.setTitle("ERROR");
-                a.setContentText("Error while loading picture: " + e.getMessage());
-                a.show();
-            }
+            GraphicsContext graphicsContext = this.path.getGraphicsContext2D();
+            graphicsContext.clearRect(0, 0, getWidth(), getHeight());
+            graphicsContext.drawImage(TARGET_IMAGE,
+                    this.selected_row * colWidth - IMAGE_SIZE / 2,
+                    this.selected_col * colHeight - IMAGE_SIZE / 2,
+                    IMAGE_SIZE,
+                    IMAGE_SIZE);
         }
     }
 
     public void redraw_plane() {
-        if(this.plane_heading != null && this.plane_lat != null && this.plane_lon != null){
-            try {
+        if(this.data == null || this.data[0] == null) return;
 
-                double lat_to_km = 111;
-                double lon_to_km = Math.cos(Math.toRadians(this.plane_lat)) * 111.32;
+        double lat_to_km = 111;
+        double lon_to_km = Math.cos(Math.toRadians(this.planeLatProperty.get())) * 111.32;
 
-                GraphicsContext graphicsContext = this.plane.getGraphicsContext2D();
-                graphicsContext.clearRect(0, 0, getWidth(), getHeight());
+        GraphicsContext graphicsContext = this.plane.getGraphicsContext2D();
+        graphicsContext.clearRect(0, 0, getWidth(), getHeight());
 
-                double x_plane = (this.plane_lon - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
-                double y_plane = - (this.plane_lat - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
+        double x_plane = (this.planeLonProperty.get() - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
+        double y_plane = - (this.planeLatProperty.get() - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
 
-                graphicsContext.save();
-                graphicsContext.translate(x_plane, y_plane);
-                graphicsContext.rotate(this.plane_heading);
-                graphicsContext.drawImage(PLANE_IMAGE,
-                        0 - IMAGE_SIZE / 2,
-                        0 - IMAGE_SIZE / 2,
-                        IMAGE_SIZE,
-                        IMAGE_SIZE);
-                graphicsContext.restore();
+        graphicsContext.save();
+        graphicsContext.translate(x_plane, y_plane);
+        graphicsContext.rotate(this.planeHeadingProperty.get());
+        graphicsContext.drawImage(PLANE_IMAGE,
+                0 - IMAGE_SIZE / 2,
+                0 - IMAGE_SIZE / 2,
+                IMAGE_SIZE,
+                IMAGE_SIZE);
+        graphicsContext.restore();
+    }
 
-            } catch (Exception e) {
-                Alert a = new Alert(Alert.AlertType.ERROR);
-                a.setTitle("ERROR");
-                a.setContentText("Error while loading picture: " + e.getMessage());
-                a.show();
-            }
-        }
+    public void remove_plane() {
+        GraphicsContext graphicsContext = this.plane.getGraphicsContext2D();
+        graphicsContext.clearRect(0, 0, getWidth(), getHeight());
     }
 
     // Max value in 2D array

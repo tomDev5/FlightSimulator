@@ -2,11 +2,11 @@ package viewmodel;
 
 import javafx.beans.property.*;
 import model.InterpreterModel;
+import model.SampleData;
 import model.SampleRunnable;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -15,6 +15,7 @@ public class ViewModel extends Observable implements Observer {
     private InterpreterModel model;
     public DoubleProperty throttle, rudder, elevator, aileron;
     public StringProperty autopilot;
+    public DoubleProperty planeLon, planeLat, planeHeading;
 
     public ViewModel(InterpreterModel model) {
         this.model = model;
@@ -23,6 +24,10 @@ public class ViewModel extends Observable implements Observer {
         this.elevator = new SimpleDoubleProperty();
         this.aileron = new SimpleDoubleProperty();
         this.autopilot = new SimpleStringProperty();
+
+        this.planeLon = new SimpleDoubleProperty();
+        this.planeLat = new SimpleDoubleProperty();
+        this.planeHeading = new SimpleDoubleProperty();
 
         HashMap<String, String> bindMap = new HashMap<>();
         bindMap.put("airspeed",             "/instrumentation/airspeed-indicator/indicated-speed-kt");
@@ -92,9 +97,20 @@ public class ViewModel extends Observable implements Observer {
 
     public void update(Observable observable, Object object) {
         if (observable == model) {
-            if(object instanceof SampleRunnable.SampleData) {
-                setChanged();
-                notifyObservers(object);
+            if(object instanceof SampleData) {
+                SampleData data = (SampleData) object;
+
+                if(data.isValid()) {
+                    this.planeLon.set(data.lon);
+                    this.planeLat.set(data.lat);
+                    this.planeHeading.set(data.heading);
+
+                    setChanged();
+                    notifyObservers("PLANE DATA");
+                } else {
+                    setChanged();
+                    notifyObservers("PLANE DISCONNECT");
+                }
             }
         }
     }

@@ -37,17 +37,23 @@ public class MainWindowController implements Observer, Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        modeTgp.selectedToggleProperty().addListener(modeGroupListener);
+        this.modeTgp.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
 
-        joystick.setOnChangeCallback(() -> {
-            viewModel.set("aileron");
-            viewModel.set("elevator");
-            viewModel.set("throttle");
-            viewModel.set("rudder");
+            String id = ((RadioButton) t1.getToggleGroup().getSelectedToggle()).getId();
+            if (id.equals(this.autopilotRdo.getId())) this.viewModel.run_autopilot();
+            else if (id.equals(this.manualRdo.getId())) this.viewModel.stop_autopilot();
+
         });
 
-        mapDisplayer.setOnMouseClicked(mouseEvent -> {
-            mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        this.joystick.setOnChangeCallback(() -> {
+            this.viewModel.set("aileron");
+            this.viewModel.set("elevator");
+            this.viewModel.set("throttle");
+            this.viewModel.set("rudder");
+        });
+
+        this.mapDisplayer.setOnMouseClicked(mouseEvent -> {
+            this.mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         });
     }
 
@@ -55,29 +61,27 @@ public class MainWindowController implements Observer, Initializable {
         this.viewModel = viewModel;
 
         // Bind to VM
-        viewModel.throttle.bind(joystick.throttleProperty());
-        viewModel.rudder.bind(joystick.rudderProperty());
-        viewModel.autopilot.bind(autopilotTxa.textProperty());
+        viewModel.throttle.bind(this.joystick.throttleProperty());
+        viewModel.rudder.bind(this.joystick.rudderProperty());
+        viewModel.autopilot.bind(this.autopilotTxa.textProperty());
 
         // Custom Bind: Autopilot radiobutton is enabled iff the script text area is not empty.
-        autopilotRdo.disableProperty().bind(Bindings.createBooleanBinding(() ->
+        this.autopilotRdo.disableProperty().bind(Bindings.createBooleanBinding(() ->
                         autopilotTxa.getText().trim().isEmpty(),
                         autopilotTxa.textProperty()));
 
-        viewModel.aileron.bind(joystick.aileronProperty()); // Aileron slider enabled iff on manual mode
-        viewModel.elevator.bind(joystick.elevatorProperty()); // Elevator slider enabled iff on manual mode
-        joystick.isManualActiveProperty().bind(manualRdo.selectedProperty()); // Joystick is enabled iff on manual mode
+        viewModel.aileron.bind(this.joystick.aileronProperty()); // Aileron slider enabled iff on manual mode
+        viewModel.elevator.bind(this.joystick.elevatorProperty()); // Elevator slider enabled iff on manual mode
+        this.joystick.isManualActiveProperty().bind(this.manualRdo.selectedProperty()); // Joystick is enabled iff on manual mode
 
-        viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
+        // Bind plane data
+        this.mapDisplayer.planeLonProperty().bind(this.viewModel.planeLon);
+        this.mapDisplayer.planeLatProperty().bind(this.viewModel.planeLat);
+        this.mapDisplayer.planeHeadingProperty().bind(this.viewModel.planeHeading);
+
+        // Output to text area
+        this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(this.outputTxa)));
     }
-
-    private final ChangeListener<Toggle> modeGroupListener = (observableValue, toggle, t1) -> {
-        String id = ((RadioButton) t1.getToggleGroup().getSelectedToggle()).getId();
-        if (id.equals(autopilotRdo.getId()))
-            this.viewModel.run_autopilot();
-        else if (id.equals(manualRdo.getId()))
-            this.viewModel.stop_autopilot();
-    };
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -203,12 +207,10 @@ public class MainWindowController implements Observer, Initializable {
     @Override
     public void update(Observable o, Object arg) {
         if(o == viewModel) {
-            if(arg instanceof SampleRunnable.SampleData) {
-                SampleRunnable.SampleData data = (SampleRunnable.SampleData) arg;
-
-                // TODO: Draw
-                mapDisplayer.updatePlane(data.lon,data.lat,data.heading);
-            }
+            if (arg.equals("PLANE DATA"))
+                this.mapDisplayer.redraw_plane();
+            else if (arg.equals("PLANE DISCONNECT"))
+                this.mapDisplayer.remove_plane();
         }
     }
 }

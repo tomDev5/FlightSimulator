@@ -9,7 +9,8 @@
 <?import javafx.scene.canvas.Canvas?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         type="javafx.scene.layout.Pane">
+         type="javafx.scene.layout.Pane"
+         style="-fx-background-color: white; -fx-border-color: lightgray;">
 
     <Canvas fx:id="map" pickOnBounds="true" />
     <Canvas fx:id="plane" pickOnBounds="true" />

@@ -25,16 +25,6 @@ public class SampleRunnable implements Runnable {
         this.sampler = sampler;
     }
 
-    public class SampleData {
-        public double lon, lat, heading;
-
-        public SampleData(double lon, double lat, double heading) {
-            this.lon = lon;
-            this.lat = lat;
-            this.heading = heading;
-        }
-    }
-
     @Override
     public void run() {
         if(connection == null)
@@ -59,7 +49,8 @@ public class SampleRunnable implements Runnable {
 
                 this.sampler.accept(new SampleData(lon, lat, heading));
             }
-        } catch (IOException ignore) {
+        } catch (IOException | ArrayIndexOutOfBoundsException e) {
+            this.sampler.accept(new SampleData(-1, -1, -1)); // invalid heading
         } finally {
             if(this.connection != null)
                 try { this.connection.close(); } catch (IOException ignore) { }
