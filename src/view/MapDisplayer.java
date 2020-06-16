@@ -138,11 +138,22 @@ public class MapDisplayer extends Canvas {
                 
                 Image image = new Image(new FileInputStream(PLANE_PATH));
                 graphicsContext.setFill(Color.WHITE);
+
+                double x_plane = (this.plane_lon - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
+                double y_plane = - (this.plane_lat - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
+
+                System.out.println(x_plane + " " + y_plane);
+
+                graphicsContext.save();
+                graphicsContext.translate(x_plane, y_plane);
+                graphicsContext.rotate(this.plane_heading);
                 graphicsContext.drawImage(image,
-                          (this.plane_lon - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km) - IMAGE_SIZE / 2,
-                         - (this.plane_lat - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km) - IMAGE_SIZE / 2,
+                        0 - IMAGE_SIZE / 2,
+                        0 - IMAGE_SIZE / 2,
                         IMAGE_SIZE,
                         IMAGE_SIZE);
+                graphicsContext.restore();
+
             } catch (Exception e) {
                 Alert a = new Alert(Alert.AlertType.ERROR);
                 a.setTitle("ERROR");
