@@ -1,3 +1,5 @@
+package view;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,7 +11,7 @@ import viewmodel.ViewModel;
 
 import java.io.IOException;
 
-public class Main extends Application {
+public class MainWindow extends Application {
     public static void main(String[] args) {
         launch(args);
     }
@@ -23,7 +25,7 @@ public class Main extends Application {
         model.addObserver(viewModel);
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("view/FXML/mainWindow.fxml"));
+        loader.setLocation(getClass().getResource("FXML/mainWindow.fxml"));
         Parent root = loader.load();
         MainWindowController view = loader.getController(); // View
 
