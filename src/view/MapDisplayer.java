@@ -8,7 +8,6 @@ import javafx.scene.paint.Color;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,13 +134,16 @@ public class MapDisplayer extends Canvas {
         if(this.plane_heading != null && this.plane_lat != null && this.plane_lon != null){
             try {
                 System.out.println("lon: " + plane_lon + ", lat: " + plane_lat + ", heading: " + plane_heading);
-                System.out.println("lon idx: " + Math.floor(-(this.lon-this.plane_lon)/this.cellSize) + ", lat idx: " + Math.floor((this.lat-this.plane_lat)/this.cellSize));
+                System.out.println("lon idx: " + Math.floor(-(this.lon-this.plane_lon)*111/Math.sqrt(this.cellSize)) + ", lat idx: " + Math.floor((this.lat-this.plane_lat)*111/Math.sqrt(this.cellSize)));
+
+                double lat_to_km = 111; // ranges from
+                double lon_to_km = Math.cos(Math.toRadians(plane_lat)) * 111;
 
                 Image image = new Image(new FileInputStream(PLANE_PATH));
                 graphicsContext.setFill(Color.WHITE);
                 graphicsContext.drawImage(image,
-                        Math.floor((this.lat-this.plane_lat)*this.cellSize),
-                        Math.floor(-(this.lon-this.plane_lon)*this.cellSize),
+                        Math.floor(-(this.lon-this.plane_lon)*lat_to_km/Math.sqrt(this.cellSize)) - IMAGE_SIZE / 2,
+                        Math.floor((this.lat-this.plane_lat)*lon_to_km/Math.sqrt(this.cellSize)) - IMAGE_SIZE / 2,
                         IMAGE_SIZE,
                         IMAGE_SIZE);
             } catch (Exception e) {
