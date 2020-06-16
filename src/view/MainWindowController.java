@@ -6,11 +6,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 import model.SampleRunnable;
+import view.Util.TextAreaOutputStream;
 import viewmodel.ViewModel;
 
 import java.io.*;
@@ -25,15 +25,11 @@ public class MainWindowController implements Observer, Initializable {
     private Stage stage;
 
     @FXML
-    private Slider throttleSld, rudderSld;
-    @FXML
     private ToggleGroup modeTgp;
     @FXML
     private RadioButton manualRdo, autopilotRdo;
     @FXML
-    private Circle external;
-    @FXML
-    private JoystickCircle joystick;
+    private Joystick joystick;
     @FXML
     private TextArea autopilotTxa, outputTxa;
     @FXML
@@ -43,16 +39,15 @@ public class MainWindowController implements Observer, Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         modeTgp.selectedToggleProperty().addListener(modeGroupListener);
 
-        joystick.setExternalCircle(external);
-        joystick.initialize();
         joystick.setOnChangeCallback(() -> {
             viewModel.set("aileron");
             viewModel.set("elevator");
+            viewModel.set("throttle");
+            viewModel.set("rudder");
         });
 
-        mapDisplayer.clear();
         mapDisplayer.setOnMouseClicked(mouseEvent -> {
-            mapDisplayer.select(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         });
     }
 
@@ -60,8 +55,8 @@ public class MainWindowController implements Observer, Initializable {
         this.viewModel = viewModel;
 
         // Bind to VM
-        viewModel.throttle.bind(throttleSld.valueProperty());
-        viewModel.rudder.bind(rudderSld.valueProperty());
+        viewModel.throttle.bind(joystick.throttleProperty());
+        viewModel.rudder.bind(joystick.rudderProperty());
         viewModel.autopilot.bind(autopilotTxa.textProperty());
 
         // Custom Bind: Autopilot radiobutton is enabled iff the script text area is not empty.
@@ -72,9 +67,6 @@ public class MainWindowController implements Observer, Initializable {
         viewModel.aileron.bind(joystick.aileronProperty()); // Aileron slider enabled iff on manual mode
         viewModel.elevator.bind(joystick.elevatorProperty()); // Elevator slider enabled iff on manual mode
         joystick.isManualActiveProperty().bind(manualRdo.selectedProperty()); // Joystick is enabled iff on manual mode
-
-        throttleSld.disableProperty().bind(joystick.isManualActiveProperty().not()); // Throttle slider is enabled iff not on manual mode
-        rudderSld.disableProperty().bind(joystick.isManualActiveProperty().not()); // Rudder slider is enabled iff not on manual mode
 
         viewModel.setLog(new PrintStream(new TextAreaOutputStream(outputTxa)));
     }
@@ -202,14 +194,6 @@ public class MainWindowController implements Observer, Initializable {
         Optional<Pair<String, Integer>> result = dialog.showAndWait();
 
         result.ifPresent(pair -> this.viewModel.connect(pair.getKey(), pair.getValue()));
-    }
-
-    public void throttle_dragged(){
-        this.viewModel.set("throttle");
-    }
-
-    public void rudder_dragged(){
-        this.viewModel.set("rudder");
     }
 
     public void changeJoyStick(){

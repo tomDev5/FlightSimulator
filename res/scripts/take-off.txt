@@ -12,3 +12,4 @@ while altitude < 1000 {
 	sleep 250
 }
 
+print "arrived at altitude 1000"

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.Pane">
+    <Text layoutY="-110.0" layoutX="-20.0" textAlignment="CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Aileron" />
+    <Text layoutX="92.0" rotate="90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Elevator" />
+    <Text layoutY="145.0" layoutX="-20.0" textAlignment="CENTER" strokeType="OUTSIDE" strokeWidth="0.0" text="Rudder" />
+    <Text layoutX="-165.0" rotate="268.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Throttle" />
+    <Slider fx:id="throttleSld" layoutX="-128.0" layoutY="-75.0" majorTickUnit="0.1" max="1.0" min="0" minorTickCount="1" orientation="VERTICAL" />
+    <Slider fx:id="rudderSld" layoutX="-70.0" layoutY="110.0" majorTickUnit="0.1" max="1.0" min="-1.0" minorTickCount="1" />
+    <Circle fx:id="external" fill="WHITE" radius="100.0" stroke="BLACK" strokeType="INSIDE" />
+    <Circle fx:id="internal" radius="30.0" stroke="BLACK" strokeType="INSIDE" />
+</fx:root>

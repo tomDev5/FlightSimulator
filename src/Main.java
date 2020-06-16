@@ -1,24 +1,15 @@
-package view;
-
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Slider;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.InterpreterModel;
-import model.InterpreterModel;
+import view.MainWindowController;
 import viewmodel.ViewModel;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
-public class MainWindow extends Application {
+public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
@@ -32,7 +23,7 @@ public class MainWindow extends Application {
         model.addObserver(viewModel);
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("mainWindow.fxml"));
+        loader.setLocation(getClass().getResource("view/FXML/mainWindow.fxml"));
         Parent root = loader.load();
         MainWindowController view = loader.getController(); // View
 

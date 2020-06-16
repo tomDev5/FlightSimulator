@@ -1,23 +1,40 @@
 package view;
 
+import javafx.beans.NamedArg;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class MapDisplayer extends Canvas {
-    private static final String TARGET_PATH = "./resources/pictures/target.png";
-    private static final String PLANE_PATH = "./resources/pictures/plane.png";
+public class MapDisplayer extends Pane implements Initializable {
     private static final double IMAGE_SIZE = 20;
+    private static Image PLANE_IMAGE;
+    private static Image TARGET_IMAGE;
 
+    static {
+        try {
+            PLANE_IMAGE = new Image(new FileInputStream("./res/pictures/plane.png"));
+            TARGET_IMAGE = new Image(new FileInputStream("./res/pictures/target.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private double height, width;
     private Double plane_lon, plane_lat, plane_heading;
 
     private double lon, lat;
@@ -26,32 +43,62 @@ public class MapDisplayer extends Canvas {
 
     private Integer selected_row, selected_col;
 
-    // White background and null data
-    public void clear() {
-        GraphicsContext graphicsContext = this.getGraphicsContext2D();
-        graphicsContext.setFill(Color.WHITE);
-        graphicsContext.fillRect(0, 0, this.getWidth(), this.getHeight());
-        graphicsContext.setStroke(Color.LIGHTGRAY);
-        graphicsContext.setLineWidth(2);
-        graphicsContext.strokeRect(0, 0, this.getWidth(), this.getHeight());
+    @FXML
+    private Canvas map, plane, path;
 
-        this.selected_col = null;
-        this.selected_row = null;
-        this.data = null;
+    public MapDisplayer(@NamedArg("height") String height, @NamedArg("width") String width) {
+        super();
+
+        this.height = Double.parseDouble(height);
+        this.width = Double.parseDouble(width);
+
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setRoot(this);
+            loader.setController(this);
+            loader.setLocation(getClass().getResource("FXML/mapDisplayer.fxml"));
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    // Select via scene (window) coordinates
-    public void select(double sceneX, double sceneY) {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.map.setLayoutX(0);
+        this.map.setLayoutY(0);
+        this.map.setHeight(this.height);
+        this.map.setWidth(this.width);
+
+        this.plane.setLayoutX(0);
+        this.plane.setLayoutY(0);
+        this.plane.setHeight(this.height);
+        this.plane.setWidth(this.width);
+
+        this.path.setLayoutX(0);
+        this.path.setLayoutY(0);
+        this.path.setHeight(this.height);
+        this.path.setWidth(this.width);
+    }
+
+    public void selectTarget(double sceneX, double sceneY) {
         if(this.data != null) {
             // Translate to canvas coordinates
             this.selected_row = (int) (this.data[0].length * (sceneX - this.getLayoutX()) / this.getWidth());
             this.selected_col = (int) (this.data.length * (sceneY - this.getLayoutY()) / this.getHeight());
 
-            redraw(); // Calls redraw to draw X
+            redraw_path();
         }
     }
 
-    // Load map from CSV
+    public void updatePlane(double lon, double lat, double heading){
+        this.plane_lon = lon;
+        this.plane_lat = lat;
+        this.plane_heading = heading;
+
+        redraw_plane();
+    }
+
     public void loadFromCSV(String path) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(path)))) {
 
@@ -84,26 +131,18 @@ public class MapDisplayer extends Canvas {
             a.show();
         }
 
-        this.redraw();
+        this.redraw_map();
     }
 
-    // Draws height map, X on selected coordinates, plane (eventually)
-    private void redraw() {
-        if(this.data == null)
-            return;
-
+    private void redraw_map() {
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
 
         double min = min(this.data);
         double max = max(this.data);
 
-        GraphicsContext graphicsContext = this.getGraphicsContext2D();
-
-        // Clear canvas
+        GraphicsContext graphicsContext = this.map.getGraphicsContext2D();
         graphicsContext.clearRect(0, 0, getWidth(), getHeight());
-
-        // Draw colored rectangles (height map)
         for(int i = 0; i < this.data.length; i++) {
             for(int j = 0; j < this.data[0].length; j++) {
                 int percent = (int) (255 * (this.data[i][j] - min) / (max - min));
@@ -112,13 +151,21 @@ public class MapDisplayer extends Canvas {
                 graphicsContext.fillRect(j * colWidth, i * colHeight, colWidth, colHeight);
             }
         }
+    }
 
-        // Draw X on selected coordinates
+    // draws both path and target
+    private void redraw_path() {
+        if(this.data == null)
+            return;
+
+        double colWidth = this.getWidth() / this.data[0].length;
+        double colHeight = this.getHeight() / this.data.length;
+
         if (this.selected_row != null && this.selected_col != null) {
             try {
-                Image image = new Image(new FileInputStream(TARGET_PATH));
-                graphicsContext.setFill(Color.WHITE);
-                graphicsContext.drawImage(image,
+                GraphicsContext graphicsContext = this.path.getGraphicsContext2D();
+                graphicsContext.clearRect(0, 0, getWidth(), getHeight());
+                graphicsContext.drawImage(TARGET_IMAGE,
                         this.selected_row * colWidth - IMAGE_SIZE / 2,
                         this.selected_col * colHeight - IMAGE_SIZE / 2,
                         IMAGE_SIZE,
@@ -130,24 +177,25 @@ public class MapDisplayer extends Canvas {
                 a.show();
             }
         }
+    }
 
+    public void redraw_plane() {
         if(this.plane_heading != null && this.plane_lat != null && this.plane_lon != null){
             try {
+
                 double lat_to_km = 111;
                 double lon_to_km = Math.cos(Math.toRadians(this.plane_lat)) * 111.32;
-                
-                Image image = new Image(new FileInputStream(PLANE_PATH));
-                graphicsContext.setFill(Color.WHITE);
+
+                GraphicsContext graphicsContext = this.plane.getGraphicsContext2D();
+                graphicsContext.clearRect(0, 0, getWidth(), getHeight());
 
                 double x_plane = (this.plane_lon - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
                 double y_plane = - (this.plane_lat - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
 
-                System.out.println(x_plane + " " + y_plane);
-
                 graphicsContext.save();
                 graphicsContext.translate(x_plane, y_plane);
                 graphicsContext.rotate(this.plane_heading);
-                graphicsContext.drawImage(image,
+                graphicsContext.drawImage(PLANE_IMAGE,
                         0 - IMAGE_SIZE / 2,
                         0 - IMAGE_SIZE / 2,
                         IMAGE_SIZE,
@@ -161,18 +209,6 @@ public class MapDisplayer extends Canvas {
                 a.show();
             }
         }
-
-        // Draw border
-        graphicsContext.setStroke(Color.LIGHTGRAY);
-        graphicsContext.setLineWidth(2);
-        graphicsContext.strokeRect(0, 0, this.getWidth(), this.getHeight());
-    }
-
-    public void updatePlane(double lon, double lat, double heading){
-        this.plane_lon = lon;
-        this.plane_lat = lat;
-        this.plane_heading = heading;
-        redraw();
     }
 
     // Max value in 2D array
@@ -195,20 +231,5 @@ public class MapDisplayer extends Canvas {
             }
         }
         return result;
-    }
-
-    // Distance in km
-    public static double distance(double lon1, double lat1, double lon2, double lat2) {
-        final int R = 6371; // Radius of the earth
-
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c;
-
-        return Math.abs(distance);
     }
 }
