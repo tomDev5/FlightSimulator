@@ -21,7 +21,7 @@ public class MapDisplayer extends Canvas {
     private Double plane_lon, plane_lat, plane_heading;
 
     private double lon, lat;
-    private double cellSize;
+    private double cell_km;
     private double[][] data;
 
     private Integer selected_row, selected_col;
@@ -62,7 +62,7 @@ public class MapDisplayer extends Canvas {
 
             // Read cell size line
             String cellSizeString = reader.readLine().split(",")[0];
-            this.cellSize = Double.parseDouble(cellSizeString);
+            this.cell_km = Double.parseDouble(cellSizeString);
 
             // Read all height map lines
             String line;
@@ -133,17 +133,14 @@ public class MapDisplayer extends Canvas {
 
         if(this.plane_heading != null && this.plane_lat != null && this.plane_lon != null){
             try {
-                System.out.println("lon: " + plane_lon + ", lat: " + plane_lat + ", heading: " + plane_heading);
-                System.out.println("lon idx: " + Math.floor(-(this.lon-this.plane_lon)*111/Math.sqrt(this.cellSize)) + ", lat idx: " + Math.floor((this.lat-this.plane_lat)*111/Math.sqrt(this.cellSize)));
-
-                double lat_to_km = 111; // ranges from
-                double lon_to_km = Math.cos(Math.toRadians(plane_lat)) * 111;
-
+                double lat_to_km = 111;
+                double lon_to_km = Math.cos(Math.toRadians(this.plane_lat)) * 111.32;
+                
                 Image image = new Image(new FileInputStream(PLANE_PATH));
                 graphicsContext.setFill(Color.WHITE);
                 graphicsContext.drawImage(image,
-                        Math.floor(-(this.lon-this.plane_lon)*lat_to_km/Math.sqrt(this.cellSize)) - IMAGE_SIZE / 2,
-                        Math.floor((this.lat-this.plane_lat)*lon_to_km/Math.sqrt(this.cellSize)) - IMAGE_SIZE / 2,
+                          (this.plane_lon - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km) - IMAGE_SIZE / 2,
+                         - (this.plane_lat - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km) - IMAGE_SIZE / 2,
                         IMAGE_SIZE,
                         IMAGE_SIZE);
             } catch (Exception e) {
@@ -158,6 +155,13 @@ public class MapDisplayer extends Canvas {
         graphicsContext.setStroke(Color.LIGHTGRAY);
         graphicsContext.setLineWidth(2);
         graphicsContext.strokeRect(0, 0, this.getWidth(), this.getHeight());
+    }
+
+    public void updatePlane(double lon, double lat, double heading){
+        this.plane_lon = lon;
+        this.plane_lat = lat;
+        this.plane_heading = heading;
+        redraw();
     }
 
     // Max value in 2D array
@@ -182,10 +186,18 @@ public class MapDisplayer extends Canvas {
         return result;
     }
 
-    public void updatePlane(double lon, double lat, double heading){
-        this.plane_lon = lon;
-        this.plane_lat = lat;
-        this.plane_heading = heading;
-        redraw();
+    // Distance in km
+    public static double distance(double lon1, double lat1, double lon2, double lat2) {
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c;
+
+        return Math.abs(distance);
     }
 }
