@@ -218,4 +218,28 @@ public class MapDisplayer extends Pane implements Initializable {
         }
         return result;
     }
+
+    @Override
+    public String toString() {
+        if(this.data == null || this.data[0] == null || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null)
+            return null;
+
+        double lat_to_km = 111;
+        double lon_to_km = Math.cos(Math.toRadians(this.planeLatProperty.get())) * 111.32;
+
+        StringBuilder toreturn= null;
+        for (double[] datum : this.data) {
+            for (double v : datum) {
+                toreturn.append(v + ',');
+
+            }
+            toreturn.append('\n');
+        }
+        toreturn.append("end\n");
+        double x_plane = (this.planeLonProperty.get() - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
+        double y_plane = - (this.planeLatProperty.get() - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
+        toreturn.append(x_plane+ ',' + y_plane+'\n');
+        toreturn.append(this.selected_row+','+this.selected_col+'\n');
+        return toreturn.toString();
+    }
 }
