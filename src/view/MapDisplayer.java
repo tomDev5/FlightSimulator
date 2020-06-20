@@ -1,9 +1,7 @@
 package view;
 
 import javafx.beans.NamedArg;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -38,10 +36,12 @@ public class MapDisplayer extends Pane implements Initializable {
     private DoubleProperty planeLonProperty;
     private DoubleProperty planeLatProperty;
     private DoubleProperty planeHeadingProperty;
+    private StringProperty pathDataProperty;
 
     public DoubleProperty planeLonProperty() { return this.planeLonProperty; }
     public DoubleProperty planeLatProperty() { return this.planeLatProperty; }
     public DoubleProperty planeHeadingProperty() { return this.planeHeadingProperty; }
+    public StringProperty pathDataProperty() { return this.pathDataProperty; }
 
     private final double height, width;
     private double lon, lat;
@@ -59,6 +59,7 @@ public class MapDisplayer extends Pane implements Initializable {
         this.planeLonProperty = new SimpleDoubleProperty();
         this.planeLatProperty = new SimpleDoubleProperty();
         this.planeHeadingProperty = new SimpleDoubleProperty();
+        this.pathDataProperty = new SimpleStringProperty();
 
         this.height = Double.parseDouble(height);
         this.width = Double.parseDouble(width);
@@ -154,6 +155,7 @@ public class MapDisplayer extends Pane implements Initializable {
     // draws both path and target
     public void redraw_path() {
         if(this.data == null || this.data[0] == null) return;
+        System.out.println(this.pathDataProperty.get());
 
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
@@ -221,25 +223,29 @@ public class MapDisplayer extends Pane implements Initializable {
 
     @Override
     public String toString() {
-        if(this.data == null || this.data[0] == null || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null || this.selected_col == null || this.selected_row == null)
+        if(this.data == null || this.data[0] == null
+                || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null
+                || this.selected_col == null || this.selected_row == null)
             return null;
 
         double lat_to_km = 111;
         double lon_to_km = Math.cos(Math.toRadians(this.planeLatProperty.get())) * 111.32;
 
-        StringBuilder toreturn= new StringBuilder();
+        StringBuilder sb= new StringBuilder();
         for (double[] datum : this.data) {
             for (double v : datum) {
-                toreturn.append(v + ",");
+                sb.append(v).append(",");
 
             }
-            toreturn.append('\n');
+            sb.append("\n");
         }
-        toreturn.append("end\n");
+        sb.append("end\n");
+
         double x_plane = (this.planeLonProperty.get() - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
         double y_plane = - (this.planeLatProperty.get() - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
-        toreturn.append(x_plane+ ',' + y_plane+'\n');
-        toreturn.append(this.selected_row+','+this.selected_col+'\n');
-        return toreturn.toString();
+
+        sb.append(x_plane).append(",").append(y_plane).append("\n").append(this.selected_row).append(",").append(this.selected_col).append("\n");
+
+        return sb.toString();
     }
 }

@@ -3,6 +3,7 @@ package model;
 import model.Interpreter.Interpreter;
 import model.Interpreter.MyInterpreter;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.HashMap;
@@ -12,11 +13,13 @@ public class InterpreterModel extends Observable {
     Interpreter interpreter;
     Thread run_thread;
     Thread sample_thread;
+    PathFetcher pathFetcher;
 
     public InterpreterModel() {
         this.interpreter = new MyInterpreter();
         this.run_thread = null;
         this.sample_thread = null;
+        this.pathFetcher = null;
     }
 
     public void setLog(PrintStream log) {
@@ -72,7 +75,26 @@ public class InterpreterModel extends Observable {
             this.sample_thread.stop();
             this.sample_thread = null;
         }
+
         this.stop();
         this.interpreter.quit();
+    }
+
+    public void connectToPathServer(String ip, int port) throws IOException {
+        this.pathFetcher = new PathFetcher(ip, port);
+    }
+
+    public void getPath(String data) {
+        new Thread(() -> {
+            try {
+                String str = this.pathFetcher.fetch(data);
+
+                setChanged();
+                notifyObservers(str);
+            } catch (IOException e) {
+                setChanged();
+                notifyObservers("");
+            }
+        }).start();
     }
 }

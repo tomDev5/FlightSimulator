@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 public class MainWindowController implements Observer, Initializable {
     private ViewModel viewModel;
     private Stage stage;
+    private boolean connectedToPathServer;
 
     @FXML
     private ToggleGroup modeTgp;
@@ -55,6 +56,8 @@ public class MainWindowController implements Observer, Initializable {
         this.mapDisplayer.setOnMouseClicked(mouseEvent -> {
             this.mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         });
+
+        this.connectedToPathServer = false;
     }
 
     public void setViewModel(ViewModel viewModel) {
@@ -78,6 +81,7 @@ public class MainWindowController implements Observer, Initializable {
         this.mapDisplayer.planeLonProperty().bind(this.viewModel.planeLon);
         this.mapDisplayer.planeLatProperty().bind(this.viewModel.planeLat);
         this.mapDisplayer.planeHeadingProperty().bind(this.viewModel.planeHeading);
+        this.mapDisplayer.pathDataProperty().bind(this.viewModel.pathData);
 
         // Output to text area
         this.viewModel.setLog(new PrintStream(new TextAreaOutputStream(this.outputTxa)));
@@ -215,7 +219,59 @@ public class MainWindowController implements Observer, Initializable {
     }
     public void getPath()
     {
-        System.out.println(this.mapDisplayer.toString());
+        if(!connectedToPathServer) {
+            Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+            dialog.setTitle("Connect to Path Server");
 
+            ButtonType connectButtonType = new ButtonType("Connect", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(connectButtonType, ButtonType.CANCEL);
+
+            GridPane gridPane = new GridPane();
+            gridPane.setHgap(10);
+            gridPane.setVgap(10);
+
+            TextField ip = new TextField();
+            ip.setPromptText("127.0.0.1");
+
+            TextField port = new TextField();
+            port.setPromptText("7070");
+
+            gridPane.add(new Label("IP:"), 0, 0);
+            gridPane.add(ip, 1, 0);
+            gridPane.add(new Label("Port:"), 0, 1);
+            gridPane.add(port, 1, 1);
+
+            dialog.getDialogPane().setContent(gridPane);
+
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == connectButtonType) {
+                    String _ip = ip.getText();
+                    if (_ip.length() == 0)
+                        _ip = "127.0.0.1";
+
+                    String _port = port.getText();
+                    if (_port.length() == 0)
+                        _port = "7070";
+
+                    return new Pair<>(_ip, Integer.parseInt(_port));
+                }
+                return null;
+            });
+
+            Optional<Pair<String, Integer>> result = dialog.showAndWait();
+
+            result.ifPresent(pair -> {
+                try {
+                    this.viewModel.connectPath(pair.getKey(), pair.getValue());
+                    this.connectedToPathServer = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            if(connectedToPathServer) {
+                this.viewModel.getPath();
+            }
+        }
     }
 }

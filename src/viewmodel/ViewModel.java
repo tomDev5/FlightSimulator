@@ -5,6 +5,7 @@ import model.InterpreterModel;
 import model.SampleData;
 import model.SampleRunnable;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Observable;
@@ -16,6 +17,7 @@ public class ViewModel extends Observable implements Observer {
     public DoubleProperty throttle, rudder, elevator, aileron;
     public StringProperty autopilot;
     public DoubleProperty planeLon, planeLat, planeHeading;
+    public StringProperty pathData;
 
     public ViewModel(InterpreterModel model) {
         this.model = model;
@@ -28,6 +30,7 @@ public class ViewModel extends Observable implements Observer {
         this.planeLon = new SimpleDoubleProperty();
         this.planeLat = new SimpleDoubleProperty();
         this.planeHeading = new SimpleDoubleProperty();
+        this.pathData = new SimpleStringProperty();
 
         HashMap<String, String> bindMap = new HashMap<>();
         bindMap.put("airspeed",             "/instrumentation/airspeed-indicator/indicated-speed-kt");
@@ -111,8 +114,26 @@ public class ViewModel extends Observable implements Observer {
                     setChanged();
                     notifyObservers("PLANE DISCONNECT");
                 }
+            } else if (object instanceof String) {
+                String data = (String) object;
+
+                if(data.length() > 0) {
+                    this.pathData.set(data);
+                    setChanged();
+                    notifyObservers("PATH DATA");
+                } else {
+                    setChanged();
+                    notifyObservers("PATH DISCONNECT");
+                }
             }
         }
     }
 
+    public void connectPath(String ip, Integer port) throws IOException {
+        this.model.connectToPathServer(ip, port);
+    }
+
+    public void getPath() {
+        this.model.getPath(this.pathData.get());
+    }
 }
