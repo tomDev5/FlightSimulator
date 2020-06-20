@@ -221,7 +221,7 @@ public class MapDisplayer extends Pane implements Initializable {
 
     @Override
     public String toString() {
-        if(this.data == null || this.data[0] == null || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null)
+        if(this.data == null || this.data[0] == null || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null || this.selected_col == null || this.selected_row == null)
             return null;
 
         double lat_to_km = 111;
@@ -230,7 +230,7 @@ public class MapDisplayer extends Pane implements Initializable {
         StringBuilder toreturn= new StringBuilder();
         for (double[] datum : this.data) {
             for (double v : datum) {
-                toreturn.append(v + ',');
+                toreturn.append(v + ",");
 
             }
             toreturn.append('\n');
