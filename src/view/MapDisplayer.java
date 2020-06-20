@@ -156,12 +156,40 @@ public class MapDisplayer extends Pane implements Initializable {
     public void redraw_path() {
         if(this.data == null || this.data[0] == null) return;
 
+        GraphicsContext graphicsContext = this.path.getGraphicsContext2D();
+        graphicsContext.clearRect(0, 0, getWidth(), getHeight());
+
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
 
+        if(this.pathDataProperty.get() != null) {
+            System.out.println(this.pathDataProperty);
+            String[] parts = this.pathDataProperty.get().split(",");
+            int x = Integer.parseInt(parts[0]);
+            int y = Integer.parseInt(parts[1]);
+
+            for(int i = 2; i < parts.length; i++) {
+                switch (parts[i]) {
+                    case "Left":
+                        x--;
+                        break;
+                    case "Right":
+                        x++;
+                        break;
+                    case "Up":
+                        y--;
+                        break;
+                    case "Down":
+                        y++;
+                        break;
+                }
+
+                graphicsContext.setFill(Color.rgb(100, 100, 100));
+                graphicsContext.fillRect(x * colWidth, y * colHeight, colWidth, colHeight);
+            }
+        }
+
         if (this.selected_row != null && this.selected_col != null) {
-            GraphicsContext graphicsContext = this.path.getGraphicsContext2D();
-            graphicsContext.clearRect(0, 0, getWidth(), getHeight());
             graphicsContext.drawImage(TARGET_IMAGE,
                     this.selected_row * colWidth - IMAGE_SIZE / 2,
                     this.selected_col * colHeight - IMAGE_SIZE / 2,
@@ -220,8 +248,7 @@ public class MapDisplayer extends Pane implements Initializable {
         return result;
     }
 
-    @Override
-    public String toString() {
+    public String[] asArray() {
         if(this.data == null || this.data[0] == null
                 || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null
                 || this.selected_col == null || this.selected_row == null)
@@ -230,21 +257,24 @@ public class MapDisplayer extends Pane implements Initializable {
         double lat_to_km = 111;
         double lon_to_km = Math.cos(Math.toRadians(this.planeLatProperty.get())) * 111.32;
 
-        StringBuilder sb= new StringBuilder();
+        List<String> lines = new ArrayList<>();
+
         for (double[] datum : this.data) {
+            StringBuilder sb= new StringBuilder();
             for (double v : datum) {
                 sb.append(v).append(",");
-
             }
             sb.append("\r\n");
+            lines.add(sb.toString());
         }
-        sb.append("end\r\n");
+        lines.add("end\r\n");
 
-        double x_plane = (this.planeLonProperty.get() - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
-        double y_plane = - (this.planeLatProperty.get() - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
+        int x_plane = (int) ((this.planeLonProperty.get() - this.lon) * lon_to_km / Math.sqrt(this.cell_km));
+        int y_plane = (int) ( - (this.planeLatProperty.get() - this.lat) * lat_to_km / Math.sqrt(this.cell_km));
 
-        sb.append(x_plane).append(",").append(y_plane).append("\r\n").append(this.selected_row).append(",").append(this.selected_col).append("\r\n");
+        lines.add(x_plane + "," + y_plane + "\r\n");
+        lines.add(this.selected_col + "," + this.selected_row + "\r\n");
 
-        return sb.toString();
+        return lines.toArray(new String[0]);
     }
 }

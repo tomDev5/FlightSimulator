@@ -204,6 +204,60 @@ public class MainWindowController implements Observer, Initializable {
         result.ifPresent(pair -> this.viewModel.connect(pair.getKey(), pair.getValue()));
     }
 
+    public void connectPath() {
+        Dialog<Pair<String, Integer>> dialog = new Dialog<>();
+        dialog.setTitle("Connect to Path Server");
+
+        ButtonType connectButtonType = new ButtonType("Connect", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(connectButtonType, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
+        TextField ip = new TextField();
+        ip.setPromptText("127.0.0.1");
+
+        TextField port = new TextField();
+        port.setPromptText("7070");
+
+        gridPane.add(new Label("IP:"), 0, 0);
+        gridPane.add(ip, 1, 0);
+        gridPane.add(new Label("Port:"), 0, 1);
+        gridPane.add(port, 1, 1);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == connectButtonType) {
+                String _ip = ip.getText();
+                if(_ip.length() == 0)
+                    _ip = "127.0.0.1";
+
+                String _port = port.getText();
+                if(_port.length() == 0)
+                    _port = "7070";
+
+                return new Pair<>(_ip, Integer.parseInt(_port));
+            }
+            return null;
+        });
+
+        Optional<Pair<String, Integer>> result = dialog.showAndWait();
+
+        result.ifPresent(pair -> {
+            this.viewModel.connectPath(pair.getKey(), pair.getValue());
+            connectedToPathServer = true;
+        });
+    }
+
+    public void getPath() {
+        if(!connectedToPathServer)
+            connectPath();
+
+        this.viewModel.getPath(this.mapDisplayer.asArray());
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if(o == viewModel) {
@@ -211,6 +265,10 @@ public class MainWindowController implements Observer, Initializable {
                 this.mapDisplayer.redraw_plane();
             else if (arg.equals("PLANE DISCONNECT"))
                 this.mapDisplayer.remove_plane();
+            else if (arg.equals("PATH DATA"))
+                this.mapDisplayer.redraw_path();
+            else if (arg.equals("PATH DISCONNECT"))
+                this.mapDisplayer.redraw_path();
         }
     }
 }

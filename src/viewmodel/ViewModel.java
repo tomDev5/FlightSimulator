@@ -79,6 +79,14 @@ public class ViewModel extends Observable implements Observer {
         this.model.connect(ip, port);
     }
 
+    public void connectPath(String ip, int port) {
+        this.model.connectPath(ip, port);
+    }
+
+    public void getPath(String[] data) {
+        this.model.getPath(data);
+    }
+
     public void openDataServer(int port) {
         this.model.openDataServer(port);
     }
@@ -113,6 +121,18 @@ public class ViewModel extends Observable implements Observer {
                 } else {
                     setChanged();
                     notifyObservers("PLANE DISCONNECT");
+                }
+            } else if(object instanceof String) {
+                String data = (String) object;
+
+                if(data.length() > 0) {
+                    this.pathData.set(data);
+
+                    setChanged();
+                    notifyObservers("PATH DATA");
+                } else {
+                    setChanged();
+                    notifyObservers("PATH DISCONNECT");
                 }
             }
         }
