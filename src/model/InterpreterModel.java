@@ -13,13 +13,11 @@ public class InterpreterModel extends Observable {
     Interpreter interpreter;
     Thread run_thread;
     Thread sample_thread;
-    PathFetcher pathFetcher;
 
     public InterpreterModel() {
         this.interpreter = new MyInterpreter();
         this.run_thread = null;
         this.sample_thread = null;
-        this.pathFetcher = null;
     }
 
     public void setLog(PrintStream log) {
@@ -78,23 +76,5 @@ public class InterpreterModel extends Observable {
 
         this.stop();
         this.interpreter.quit();
-    }
-
-    public void connectToPathServer(String ip, int port) throws IOException {
-        this.pathFetcher = new PathFetcher(ip, port);
-    }
-
-    public void getPath(String data) {
-        new Thread(() -> {
-            try {
-                String str = this.pathFetcher.fetch(data);
-
-                setChanged();
-                notifyObservers(str);
-            } catch (IOException e) {
-                setChanged();
-                notifyObservers("");
-            }
-        }).start();
     }
 }

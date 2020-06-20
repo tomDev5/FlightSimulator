@@ -155,7 +155,6 @@ public class MapDisplayer extends Pane implements Initializable {
     // draws both path and target
     public void redraw_path() {
         if(this.data == null || this.data[0] == null) return;
-        System.out.println(this.pathDataProperty.get());
 
         double colWidth = this.getWidth() / this.data[0].length;
         double colHeight = this.getHeight() / this.data.length;
@@ -237,14 +236,14 @@ public class MapDisplayer extends Pane implements Initializable {
                 sb.append(v).append(",");
 
             }
-            sb.append("\n");
+            sb.append("\r\n");
         }
-        sb.append("end\n");
+        sb.append("end\r\n");
 
         double x_plane = (this.planeLonProperty.get() - this.lon) * (this.getWidth() / this.data[0].length) * lon_to_km / Math.sqrt(this.cell_km);
         double y_plane = - (this.planeLatProperty.get() - this.lat) * (this.getHeight() / this.data.length) * lat_to_km / Math.sqrt(this.cell_km);
 
-        sb.append(x_plane).append(",").append(y_plane).append("\n").append(this.selected_row).append(",").append(this.selected_col).append("\n");
+        sb.append(x_plane).append(",").append(y_plane).append("\r\n").append(this.selected_row).append(",").append(this.selected_col).append("\r\n");
 
         return sb.toString();
     }

@@ -114,26 +114,7 @@ public class ViewModel extends Observable implements Observer {
                     setChanged();
                     notifyObservers("PLANE DISCONNECT");
                 }
-            } else if (object instanceof String) {
-                String data = (String) object;
-
-                if(data.length() > 0) {
-                    this.pathData.set(data);
-                    setChanged();
-                    notifyObservers("PATH DATA");
-                } else {
-                    setChanged();
-                    notifyObservers("PATH DISCONNECT");
-                }
             }
         }
-    }
-
-    public void connectPath(String ip, Integer port) throws IOException {
-        this.model.connectToPathServer(ip, port);
-    }
-
-    public void getPath() {
-        this.model.getPath(this.pathData.get());
     }
 }
