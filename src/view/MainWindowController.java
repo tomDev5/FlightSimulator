@@ -213,4 +213,9 @@ public class MainWindowController implements Observer, Initializable {
                 this.mapDisplayer.remove_plane();
         }
     }
+    public void getPath()
+    {
+        System.out.println(this.mapDisplayer.toString());
+
+    }
 }

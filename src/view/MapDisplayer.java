@@ -227,7 +227,7 @@ public class MapDisplayer extends Pane implements Initializable {
         double lat_to_km = 111;
         double lon_to_km = Math.cos(Math.toRadians(this.planeLatProperty.get())) * 111.32;
 
-        StringBuilder toreturn= null;
+        StringBuilder toreturn= new StringBuilder();
         for (double[] datum : this.data) {
             for (double v : datum) {
                 toreturn.append(v + ',');
