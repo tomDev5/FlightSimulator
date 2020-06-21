@@ -14,6 +14,7 @@ import java.util.Observer;
 
 public class ViewModel extends Observable implements Observer {
     private InterpreterModel model;
+
     public DoubleProperty throttle, rudder, elevator, aileron;
     public StringProperty autopilot;
     public DoubleProperty planeLon, planeLat, planeHeading;
@@ -79,12 +80,8 @@ public class ViewModel extends Observable implements Observer {
         this.model.connect(ip, port);
     }
 
-    public void connectPath(String ip, int port) {
-        this.model.connectPath(ip, port);
-    }
-
-    public void getPath(String[] data) {
-        this.model.getPath(data);
+    public void getPath(String ip, int port, String[] data) {
+        this.model.getPath(ip, port, data);
     }
 
     public void openDataServer(int port) {
@@ -111,11 +108,11 @@ public class ViewModel extends Observable implements Observer {
             if(object instanceof SampleData) {
                 SampleData data = (SampleData) object;
 
-                if(data.isValid()) {
-                    this.planeLon.set(data.lon);
-                    this.planeLat.set(data.lat);
-                    this.planeHeading.set(data.heading);
+                this.planeLon.set(data.lon);
+                this.planeLat.set(data.lat);
+                this.planeHeading.set(data.heading);
 
+                if(data.isValid()) {
                     setChanged();
                     notifyObservers("PLANE DATA");
                 } else {

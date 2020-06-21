@@ -13,7 +13,8 @@
          style="-fx-background-color: white; -fx-border-color: lightgray;">
 
     <Canvas fx:id="map" pickOnBounds="true" />
-    <Canvas fx:id="plane" pickOnBounds="true" />
     <Canvas fx:id="path" pickOnBounds="true" />
+    <Canvas fx:id="target" pickOnBounds="true" />
+    <Canvas fx:id="plane" pickOnBounds="true" />
 
 </fx:root>

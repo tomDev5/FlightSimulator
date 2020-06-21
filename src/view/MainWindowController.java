@@ -23,7 +23,9 @@ import java.util.ResourceBundle;
 public class MainWindowController implements Observer, Initializable {
     private ViewModel viewModel;
     private Stage stage;
-    private boolean connectedToPathServer;
+
+    private String path_ip;
+    private int path_port;
 
     @FXML
     private ToggleGroup modeTgp;
@@ -57,7 +59,8 @@ public class MainWindowController implements Observer, Initializable {
             this.mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         });
 
-        this.connectedToPathServer = false;
+        this.path_ip = null;
+        this.path_port = 0;
     }
 
     public void setViewModel(ViewModel viewModel) {
@@ -246,29 +249,32 @@ public class MainWindowController implements Observer, Initializable {
         Optional<Pair<String, Integer>> result = dialog.showAndWait();
 
         result.ifPresent(pair -> {
-            this.viewModel.connectPath(pair.getKey(), pair.getValue());
-            connectedToPathServer = true;
+            this.path_ip = pair.getKey();
+            this.path_port = pair.getValue();
         });
     }
 
     public void getPath() {
-        if(!connectedToPathServer)
+        if(this.path_ip == null)
             connectPath();
 
-        this.viewModel.getPath(this.mapDisplayer.asArray());
+        if(this.path_ip != null)
+            this.viewModel.getPath(this.path_ip, this.path_port, this.mapDisplayer.asArray());
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        if(o == viewModel) {
-            if (arg.equals("PLANE DATA"))
-                this.mapDisplayer.redraw_plane();
-            else if (arg.equals("PLANE DISCONNECT"))
-                this.mapDisplayer.remove_plane();
-            else if (arg.equals("PATH DATA"))
-                this.mapDisplayer.redraw_path();
-            else if (arg.equals("PATH DISCONNECT"))
-                this.mapDisplayer.redraw_path();
+        if(o == viewModel && arg instanceof String) {
+            switch ((String) arg) {
+                case "PLANE DATA":
+                case "PLANE DISCONNECT":
+                    this.mapDisplayer.redraw_plane();
+                    break;
+                case "PATH DATA":
+                case "PATH DISCONNECT":
+                    this.mapDisplayer.redraw_path();
+                    break;
+            }
         }
     }
 }
