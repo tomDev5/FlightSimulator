@@ -3,11 +3,10 @@ package model;
 public class SampleData {
     public double lon, lat, heading, alt;
 
-    public SampleData(double lon, double lat, double heading, double alt) {
+    public SampleData(double lon, double lat, double heading) {
         this.lon = lon;
         this.lat = lat;
         this.heading = heading;
-        this.alt = alt;
     }
 
     public boolean isValid() {

@@ -84,7 +84,6 @@ public class MainWindowController implements Observer, Initializable {
         this.mapDisplayer.planeLonProperty().bind(this.viewModel.planeLon);
         this.mapDisplayer.planeLatProperty().bind(this.viewModel.planeLat);
         this.mapDisplayer.planeHeadingProperty().bind(this.viewModel.planeHeading);
-        this.mapDisplayer.planeAltProperty().bind(this.viewModel.planeAlt);
         this.mapDisplayer.pathDataProperty().bind(this.viewModel.pathData);
 
         // Output to text area
