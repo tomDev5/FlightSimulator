@@ -2,6 +2,8 @@ package view;
 
 import javafx.beans.NamedArg;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -37,11 +39,13 @@ public class MapDisplayer extends Pane implements Initializable {
     private DoubleProperty planeLonProperty;
     private DoubleProperty planeLatProperty;
     private DoubleProperty planeHeadingProperty;
+    private DoubleProperty planeAltProperty;
     private StringProperty pathDataProperty;
 
     public DoubleProperty planeLonProperty() { return this.planeLonProperty; }
     public DoubleProperty planeLatProperty() { return this.planeLatProperty; }
     public DoubleProperty planeHeadingProperty() { return this.planeHeadingProperty; }
+    public DoubleProperty planeAltProperty() { return this.planeAltProperty; }
     public StringProperty pathDataProperty() { return this.pathDataProperty; }
 
     private final double height, width;
@@ -60,6 +64,7 @@ public class MapDisplayer extends Pane implements Initializable {
         this.planeLonProperty = new SimpleDoubleProperty();
         this.planeLatProperty = new SimpleDoubleProperty();
         this.planeHeadingProperty = new SimpleDoubleProperty();
+        this.planeAltProperty = new SimpleDoubleProperty();
         this.pathDataProperty = new SimpleStringProperty();
 
         this.height = Double.parseDouble(height);
@@ -257,7 +262,7 @@ public class MapDisplayer extends Pane implements Initializable {
 
     public String[] asArray() {
         if(this.data == null || this.data[0] == null
-                || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null
+                || this.planeLonProperty.getValue() == null || this.planeLatProperty.getValue() == null || this.planeAltProperty.getValue() == null
                 || this.selected_col == null || this.selected_row == null)
             return null;
 
@@ -269,7 +274,7 @@ public class MapDisplayer extends Pane implements Initializable {
         for (double[] datum : this.data) {
             StringBuilder sb= new StringBuilder();
             for (double v : datum) {
-                sb.append(v).append(",");
+                sb.append(Math.max(v - this.planeAltProperty.getValue(), 0)).append(",");
             }
             lines.add(sb.toString());
         }

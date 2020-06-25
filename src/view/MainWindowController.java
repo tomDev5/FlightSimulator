@@ -1,7 +1,6 @@
 package view;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -9,7 +8,6 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import model.SampleRunnable;
 import view.Util.TextAreaOutputStream;
 import viewmodel.ViewModel;
 
@@ -57,6 +55,8 @@ public class MainWindowController implements Observer, Initializable {
 
         this.mapDisplayer.setOnMouseClicked(mouseEvent -> {
             this.mapDisplayer.selectTarget(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            if(this.path_ip != null)
+                get_path();
         });
 
         this.path_ip = null;
@@ -84,6 +84,7 @@ public class MainWindowController implements Observer, Initializable {
         this.mapDisplayer.planeLonProperty().bind(this.viewModel.planeLon);
         this.mapDisplayer.planeLatProperty().bind(this.viewModel.planeLat);
         this.mapDisplayer.planeHeadingProperty().bind(this.viewModel.planeHeading);
+        this.mapDisplayer.planeAltProperty().bind(this.viewModel.planeAlt);
         this.mapDisplayer.pathDataProperty().bind(this.viewModel.pathData);
 
         // Output to text area
@@ -207,7 +208,13 @@ public class MainWindowController implements Observer, Initializable {
         result.ifPresent(pair -> this.viewModel.connect(pair.getKey(), pair.getValue()));
     }
 
-    public void connectPath() {
+    public void get_path() {
+        String[] data = this.mapDisplayer.asArray();
+        if(this.path_ip != null && data != null)
+            this.viewModel.getPath(this.path_ip, this.path_port, data);
+    }
+
+    public void calculatePath() {
         Dialog<Pair<String, Integer>> dialog = new Dialog<>();
         dialog.setTitle("Connect to Path Server");
 
@@ -251,15 +258,8 @@ public class MainWindowController implements Observer, Initializable {
         result.ifPresent(pair -> {
             this.path_ip = pair.getKey();
             this.path_port = pair.getValue();
+            get_path();
         });
-    }
-
-    public void getPath() {
-        if(this.path_ip == null)
-            connectPath();
-
-        if(this.path_ip != null)
-            this.viewModel.getPath(this.path_ip, this.path_port, this.mapDisplayer.asArray());
     }
 
     @Override

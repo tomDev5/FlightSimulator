@@ -17,7 +17,7 @@ public class ViewModel extends Observable implements Observer {
 
     public DoubleProperty throttle, rudder, elevator, aileron;
     public StringProperty autopilot;
-    public DoubleProperty planeLon, planeLat, planeHeading;
+    public DoubleProperty planeLon, planeLat, planeHeading, planeAlt;
     public StringProperty pathData;
 
     public ViewModel(InterpreterModel model) {
@@ -31,6 +31,7 @@ public class ViewModel extends Observable implements Observer {
         this.planeLon = new SimpleDoubleProperty();
         this.planeLat = new SimpleDoubleProperty();
         this.planeHeading = new SimpleDoubleProperty();
+        this.planeAlt = new SimpleDoubleProperty();
         this.pathData = new SimpleStringProperty();
 
         HashMap<String, String> bindMap = new HashMap<>();
@@ -111,6 +112,7 @@ public class ViewModel extends Observable implements Observer {
                 this.planeLon.set(data.lon);
                 this.planeLat.set(data.lat);
                 this.planeHeading.set(data.heading);
+                this.planeAlt.set(data.alt);
 
                 if(data.isValid()) {
                     setChanged();

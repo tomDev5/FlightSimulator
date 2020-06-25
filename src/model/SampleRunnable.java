@@ -40,17 +40,19 @@ public class SampleRunnable implements Runnable {
 
                 writer.print("get /position/longitude-deg\r\n");
                 writer.print("get /position/latitude-deg\r\n");
-                writer.print("get /orientation/heading-deg\r\n");
+                writer.print("get /instrumentation/heading-indicator/indicated-heading-deg\r\n");
+                writer.print("get /position/altitude-ft\r\n");
                 writer.flush();
 
                 double lon = Double.parseDouble(reader.readLine().split("'")[1]);
                 double lat = Double.parseDouble(reader.readLine().split("'")[1]);
                 double heading = Double.parseDouble(reader.readLine().split("'")[1]);
+                double alt = Double.parseDouble(reader.readLine().split("'")[1]) * 0.3048;
 
-                this.sampler.accept(new SampleData(lon, lat, heading));
+                this.sampler.accept(new SampleData(lon, lat, heading, alt));
             }
         } catch (IOException | ArrayIndexOutOfBoundsException e) {
-            this.sampler.accept(new SampleData(-1, -1, -1)); // invalid heading
+            this.sampler.accept(new SampleData(-1, -1, -1, -1)); // invalid heading
         } finally {
             if(this.connection != null)
                 try { this.connection.close(); } catch (IOException ignore) { }
